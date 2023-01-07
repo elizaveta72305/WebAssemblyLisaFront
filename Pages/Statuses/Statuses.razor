@@ -1,9 +1,15 @@
 ﻿
 @page "/statuses";
-
 @using WebAssemblyF.Models;
-@using Microsoft.AspNetCore.Components.WebAssembly.Authentication
+@using Microsoft.AspNetCore.Components.WebAssembly.Authentication;
 @using Microsoft.Extensions.Http;
+@using Microsoft.Net.Http.Headers;
+@using System.Net.Http.Headers;
+@using Newtonsoft.Json;
+@using Microsoft.AspNetCore.Authorization;
+@using Microsoft.AspNetCore.Components;
+@using WebAssemblyF.Pages.Authentication;
+@using System.Net.Http;
 
 @attribute [Authorize]
 
@@ -42,24 +48,25 @@ else
 
 	protected override async Task OnInitializedAsync()
 	{
-		//var accessTokenResult = await TokenProvider.RequestAccessToken();
-		//AccessToken = string.Empty;
+		await CallApi();
+	}
 
-		//if (accessTokenResult.TryGetToken(out var token))
-		//{
-		//	AccessToken = token.Value;
-		//}
-		
+	async Task CallApi()
+	{
+
+		var accessTokenResult = await TokenProvider.RequestAccessToken();
+		var AccessToken = string.Empty;
+
+		if (accessTokenResult.TryGetToken(out var token))
+		{
+			AccessToken = token.Value;
+		}
+		Http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", AccessToken);
+		//HttpResponseMessage responce = await Http.GetAsync("api/Status");
+
+		//string content = await responce.Content.ReadAsStringAsync();
+		//AllStatuses = JsonConvert.DeserializeObject<List<StatusModel>>();
 
 		AllStatuses = await Http.GetFromJsonAsync<List<StatusModel>>("api/Status");
 	}
-		//var accessTokenResult = await TokenProvider.ReqiestAccessToken();
-		//var AccessToken = string.Empty;
-
-		//if (AccessToken.TryGetToken(out var token))
-		//{
-		//	AccessToken = token.Value;
-		//}
-		
-	
 }
