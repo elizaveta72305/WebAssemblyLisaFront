@@ -1,0 +1,65 @@
+﻿
+@page "/statuses";
+
+@using WebAssemblyF.Models;
+@using Microsoft.AspNetCore.Components.WebAssembly.Authentication
+@using Microsoft.Extensions.Http;
+
+@attribute [Authorize]
+
+@inject HttpClient Http
+@inject IAccessTokenProvider TokenProvider
+
+<h3>List of statuses </h3>
+
+@if (AllStatuses == null)
+{
+	<p><em> Loading...</em></p>
+}
+else
+{
+	<table class="table">
+		<thead>
+			<tr>
+				<th>StatusId</th>
+				<th>Status</th>
+			</tr>
+		</thead>
+		<tbody>
+			@foreach (var status in AllStatuses)
+			{
+			<tr>
+				<td>@status.StatusId</td>
+				<td>@status.Status</td>
+			</tr>
+			}
+		</tbody>
+	</table>
+}
+@code {
+
+	private List<StatusModel> AllStatuses;
+
+	protected override async Task OnInitializedAsync()
+	{
+		//var accessTokenResult = await TokenProvider.RequestAccessToken();
+		//AccessToken = string.Empty;
+
+		//if (accessTokenResult.TryGetToken(out var token))
+		//{
+		//	AccessToken = token.Value;
+		//}
+		
+
+		AllStatuses = await Http.GetFromJsonAsync<List<StatusModel>>("api/Status");
+	}
+		//var accessTokenResult = await TokenProvider.ReqiestAccessToken();
+		//var AccessToken = string.Empty;
+
+		//if (AccessToken.TryGetToken(out var token))
+		//{
+		//	AccessToken = token.Value;
+		//}
+		
+	
+}
