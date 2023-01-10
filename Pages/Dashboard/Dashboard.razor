@@ -39,7 +39,8 @@ else
 			@foreach (var task in MyTask)
 			{
 				<tr>
-					<td>@task.Name</td>
+					<td><button @onclick="@(() => Modal.Show<Counter>("Task conditions"))"> Take Task>@task.Name</button></td>
+
 					<td>
 				@foreach (var category in @task.TaskCategory)
 				{
