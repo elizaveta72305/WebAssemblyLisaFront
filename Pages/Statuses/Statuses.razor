@@ -10,7 +10,11 @@
 @using Microsoft.AspNetCore.Components;
 @using WebAssemblyF.Pages.Authentication;
 @using System.Net.Http;
-@attribute [Authorize]
+
+@attribute [Authorize(Policy = "Participant")]
+
+@*@attribute [Authorize]
+*@
 
 @inject HttpClient Http
 @inject IAccessTokenProvider TokenProvider

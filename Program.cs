@@ -17,6 +17,10 @@ builder.Services.AddHttpClient("ServerAPI",
 builder.Services.AddScoped(sp => sp.GetRequiredService<IHttpClientFactory>()
   .CreateClient("ServerAPI"));
 
+builder.Services.AddAuthorizationCore(options =>
+{
+	options.AddPolicy("Participant", policy => policy.RequireClaim("https://localhost:7192/claims/role", "Participant"));
+});
 
 builder.Services.AddOidcAuthentication(options =>
 {
