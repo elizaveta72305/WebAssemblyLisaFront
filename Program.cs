@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.AspNetCore.Components.WebAssembly.Authentication;
 using WebAssemblyF;
 using BlazorBootstrap;
+using Blazored.Modal;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
@@ -26,5 +27,6 @@ builder.Services.AddOidcAuthentication(options =>
 
 });
 builder.Services.AddBlazorBootstrap();
+builder.Services.AddBlazoredModal();
 
 await builder.Build().RunAsync();

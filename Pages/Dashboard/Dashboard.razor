@@ -14,6 +14,7 @@
 
 @attribute [Authorize]
 @inject HttpClient Http
+@inject IModalService Modal;
 @inject IAccessTokenProvider TokenProvider
 
 <h3>Your dashboard </h3>
@@ -49,19 +50,22 @@ else
 					<td>@task.Points</td>
 					<td>@task.ExtraTime min</td>
 					<td>@task.ExtraPoints </td>
-					<p><Button Color="ButtonColor.Success"> Success </Button></p>
+					<p><Button Color="ButtonColor.Success" @onclick="@(() => Modal.Show<Counter>("Task conditions"))"> Take Task </Button></p>
 				</tr>
 			}
 		</tbody>
 	</table>
 }
 @code {
-
 	private List<TaskModel> MyTask;
 
 	protected override async Task OnInitializedAsync()
 	{
 		await CallApi();
+	}
+	private void ShowTask()
+	{
+		
 	}
 
 	async Task CallApi()
@@ -74,6 +78,6 @@ else
 		}
 		Http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", AccessToken);
 		MyTask = await Http.GetFromJsonAsync<List<TaskModel>>("/api/Task");
-	
+
 	}
 }
