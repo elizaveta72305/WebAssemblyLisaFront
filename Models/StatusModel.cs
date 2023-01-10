@@ -11,7 +11,6 @@ namespace WebAssemblyF.Models;
 
 		[BsonElement("status"), BsonRepresentation(BsonType.String)]
 		public string Status { get; set; }
-
 	}
 
 

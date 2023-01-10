@@ -1,5 +1,5 @@
-﻿
-@page "/statuses";
+﻿@page "/dashboard";
+
 @using WebAssemblyF.Models;
 @using Microsoft.AspNetCore.Components.WebAssembly.Authentication;
 @using Microsoft.Extensions.Http;
@@ -11,13 +11,11 @@
 @using WebAssemblyF.Pages.Authentication;
 @using System.Net.Http;
 @attribute [Authorize]
-
 @inject HttpClient Http
 @inject IAccessTokenProvider TokenProvider
 
-<h3>List of statuses </h3>
-
-@if (AllStatuses == null)
+<h3>Your dashboard </h3>
+@if (MyTask == null)
 {
 	<p><em> Loading...</em></p>
 }
@@ -26,24 +24,37 @@ else
 	<table class="table">
 		<thead>
 			<tr>
-				<th>StatusId</th>
-				<th>Status</th>
+				<th>Name</th>
+				<th>TaskCategory</th>
+				<th>DurationLimit</th>
+				<th>Points</th>
+				<th>ExtraTime</th>
+				<th>ExtraPoints</th>
 			</tr>
 		</thead>
 		<tbody>
-			@foreach (var status in AllStatuses)
+			@foreach (var task in MyTask)
 			{
-			<tr>
-				<td>@status.StatusId</td>
-				<td>@status.Status</td>
-			</tr>
+				<tr>
+					<td>@task.Name</td>
+					<td>
+				@foreach (var category in @task.TaskCategory)
+				{
+						<span>@category</span>
+				}
+					</td>
+					<td>@task.DurationLimit min</td>
+					<td>@task.Points</td>
+					<td>@task.ExtraTime min</td>
+					<td>@task.ExtraPoints </td>
+				</tr>
 			}
 		</tbody>
 	</table>
 }
 @code {
 
-	private List<StatusModel> AllStatuses;
+	private List<TaskModel> MyTask;
 
 	protected override async Task OnInitializedAsync()
 	{
@@ -54,17 +65,12 @@ else
 	{
 		var accessTokenResult = await TokenProvider.RequestAccessToken();
 		var AccessToken = string.Empty;
-
 		if (accessTokenResult.TryGetToken(out var token))
 		{
 			AccessToken = token.Value;
 		}
 		Http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", AccessToken);
-		//HttpResponseMessage responce = await Http.GetAsync("api/Status");
-
-		//string content = await responce.Content.ReadAsStringAsync();
-		//AllStatuses = JsonConvert.DeserializeObject<List<StatusModel>>();
-
-		AllStatuses = await Http.GetFromJsonAsync<List<StatusModel>>("api/Status");
+		MyTask = await Http.GetFromJsonAsync<List<TaskModel>>("/api/Task");
+	
 	}
 }

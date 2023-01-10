@@ -8,8 +8,6 @@ using System.Net;
 using System.IdentityModel.Tokens.Jwt;
 using Newtonsoft.Json;
 
-
-
 //using Newtonsoft.Json;
 
 namespace WebAssemblyF.Pages;
@@ -34,7 +32,5 @@ namespace WebAssemblyF.Pages;
 			var handler = new JwtSecurityTokenHandler();
 			var jwtSecurityToken = handler.ReadJwtToken(AccessToken);
 		}
-
 	}
-	
 	}
