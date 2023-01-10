@@ -1,5 +1,4 @@
 ﻿@page "/dashboard";
-
 @using WebAssemblyF.Models;
 @using Microsoft.AspNetCore.Components.WebAssembly.Authentication;
 @using Microsoft.Extensions.Http;
@@ -10,6 +9,9 @@
 @using Microsoft.AspNetCore.Components;
 @using WebAssemblyF.Pages.Authentication;
 @using System.Net.Http;
+@using BlazorBootstrap;
+
+
 @attribute [Authorize]
 @inject HttpClient Http
 @inject IAccessTokenProvider TokenProvider
@@ -40,13 +42,14 @@ else
 					<td>
 				@foreach (var category in @task.TaskCategory)
 				{
-						<span>@category</span>
+						<span>@category </span>
 				}
 					</td>
 					<td>@task.DurationLimit min</td>
 					<td>@task.Points</td>
 					<td>@task.ExtraTime min</td>
 					<td>@task.ExtraPoints </td>
+					<p><Button Color="ButtonColor.Success"> Success </Button></p>
 				</tr>
 			}
 		</tbody>
