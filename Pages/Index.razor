@@ -1,7 +1,24 @@
 ﻿@page "/"
+@inject HttpClient Http
 
 <PageTitle>Index</PageTitle>
 
 Welcome to your Competition!
+
+<AuthorizeView>
+	<Authorized>
+		<span>
+			You are authorise as @context.User.Identity.Name
+		</span>
+	</Authorized>
+</AuthorizeView>
+
+@*<AuthorizeView Roles="Administrator">
+*@   
+
+<AuthorizeView Policy="@Policies.IsAdmin">
+<p>You can only see this if you satisfy the IsAdmin policy.</p>
+</AuthorizeView>
+
 
 

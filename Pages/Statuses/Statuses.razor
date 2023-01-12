@@ -1,6 +1,7 @@
 ﻿
 @page "/statuses";
 @using WebAssemblyF.Models;
+@using WebAssemblyF;
 @using Microsoft.AspNetCore.Components.WebAssembly.Authentication;
 @using Microsoft.Extensions.Http;
 @using Microsoft.Net.Http.Headers;
@@ -11,7 +12,7 @@
 @using WebAssemblyF.Pages.Authentication;
 @using System.Net.Http;
 
-@attribute [Authorize(Policy = "Participant")]
+@attribute [Authorize(Policy=Policies.IsAdmin)]
 
 @*@attribute [Authorize]
 *@
@@ -20,6 +21,8 @@
 @inject IAccessTokenProvider TokenProvider
 
 <h3>List of statuses </h3>
+
+
 
 @if (AllStatuses == null)
 {
@@ -47,6 +50,7 @@ else
 }
 @code {
 
+
 	private List<StatusModel> AllStatuses;
 
 	protected override async Task OnInitializedAsync()
@@ -64,10 +68,6 @@ else
 			AccessToken = token.Value;
 		}
 		Http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", AccessToken);
-		//HttpResponseMessage responce = await Http.GetAsync("api/Status");
-
-		//string content = await responce.Content.ReadAsStringAsync();
-		//AllStatuses = JsonConvert.DeserializeObject<List<StatusModel>>();
 
 		AllStatuses = await Http.GetFromJsonAsync<List<StatusModel>>("api/Status");
 	}
