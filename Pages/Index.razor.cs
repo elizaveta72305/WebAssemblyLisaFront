@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Components.Authorization;
 using System.Diagnostics;
 using Newtonsoft.Json.Linq;
 using MongoDB.Bson.IO;
+using System.Text.RegularExpressions;
 
 //using Newtonsoft.Json;
 
@@ -34,6 +35,12 @@ namespace WebAssemblyF.Pages;
 			AccessToken = token.Value;
 			var handler = new JwtSecurityTokenHandler();
 			var jwtSecurityToken = handler.ReadJwtToken(AccessToken);
+			var mail = jwtSecurityToken.Claims.First(c => c.Type == "mail").Value;
+
+			//var claim = token.Claims.First(c => c.Type == "email").Value;
+			//return claim;
+
 		}
+		
 	}
 }
