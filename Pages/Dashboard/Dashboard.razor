@@ -1,16 +1,18 @@
 ﻿@page "/dashboard";
 @using WebAssemblyF.Models;
 @using Microsoft.AspNetCore.Components.WebAssembly.Authentication;
-@using Microsoft.Extensions.Http;
-@using Microsoft.Net.Http.Headers;
-@using System.Net.Http.Headers;
-@using Newtonsoft.Json;
 @using Microsoft.AspNetCore.Authorization;
 @using Microsoft.AspNetCore.Components;
+@using Microsoft.Extensions.Http;
+@using Microsoft.IdentityModel.Tokens;
+@using Microsoft.Net.Http.Headers;
+@using System.Net.Http.Headers;
+@using WebAssemblyF.Pages;
+@using Newtonsoft.Json;
+@using System.IdentityModel.Tokens.Jwt;
 @using WebAssemblyF.Pages.Authentication;
 @using System.Net.Http;
 @using BlazorBootstrap;
-
 
 @attribute [Authorize]
 @inject HttpClient Http
@@ -24,6 +26,12 @@
 }
 else
 {
+	<AuthorizeView Policy="@Policies.IsParticipant">
+		Hello @context.User.Identity.Name <br/>
+		You are participant of competition!
+	</AuthorizeView>
+
+	
 	
 	<table class="table">
 		<thead>
@@ -65,10 +73,8 @@ else
 	{
 		await CallApi();
 	}
-	private void ShowTask()
-	{
-		
-	}
+
+
 
 	async Task CallApi()
 	{
@@ -77,9 +83,11 @@ else
 		if (accessTokenResult.TryGetToken(out var token))
 		{
 			AccessToken = token.Value;
+			var handler = new JwtSecurityTokenHandler();
+			var jwtSecurityToken = handler.ReadJwtToken(AccessToken);
+			var mail = jwtSecurityToken.Claims.First(c => c.Type == "mail").Value;
 		}
 		Http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", AccessToken);
 		MyTask = await Http.GetFromJsonAsync<List<TaskModel>>("/api/Task");
-
 	}
 }
