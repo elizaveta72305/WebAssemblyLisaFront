@@ -16,6 +16,9 @@ builder.Services.AddHttpClient("ServerAPI",
 	  client => client.BaseAddress = new Uri("http://localhost:5093"))
 	.AddHttpMessageHandler<BaseAddressAuthorizationMessageHandler>();
 
+//builder.Services.AddScoped(sp => new HttpClient { }).AddHttpMessageHandler<BaseAddressAuthorizationMessageHandler>();
+
+
 builder.Services.AddScoped(sp => sp.GetRequiredService<IHttpClientFactory>()
   .CreateClient("ServerAPI"));
 
@@ -32,6 +35,7 @@ builder.Services.AddOidcAuthentication(options =>
 	options.ProviderOptions.ResponseType = "code";
 	options.ProviderOptions.AdditionalProviderParameters.Add("audience", builder.Configuration["Auth0:Audience"]);
 }).AddAccountClaimsPrincipalFactory<ArrayClaimsPrincipalFactory<RemoteUserAccount>>();
+
 
 builder.Services.AddBlazorBootstrap();
 builder.Services.AddBlazoredModal();

@@ -30,8 +30,6 @@ else
 		Hello @context.User.Identity.Name <br/>
 		You are participant of competition!
 	</AuthorizeView>
-
-	
 	
 	<table class="table">
 		<thead>
@@ -68,18 +66,20 @@ else
 }
 @code {
 	private List<TaskModel> MyTask;
+	private List<TeamModel> MyTeam;
 
 	protected override async Task OnInitializedAsync()
 	{
 		await CallApi();
+
 	}
-
-
 
 	async Task CallApi()
 	{
 		var accessTokenResult = await TokenProvider.RequestAccessToken();
 		var AccessToken = string.Empty;
+
+
 		if (accessTokenResult.TryGetToken(out var token))
 		{
 			AccessToken = token.Value;
@@ -87,7 +87,16 @@ else
 			var jwtSecurityToken = handler.ReadJwtToken(AccessToken);
 			var mail = jwtSecurityToken.Claims.First(c => c.Type == "mail").Value;
 		}
+		//var whatsTeam = await Http.Post<List<String>>("/api/Task");
+
+
 		Http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", AccessToken);
 		MyTask = await Http.GetFromJsonAsync<List<TaskModel>>("/api/Task");
+
+
+		MyTeam = await Http.GetFromJsonAsync<List<TeamModel>>("http://localhost:2050/team/readAll");
+
+		Console.WriteLine(MyTeam);
+
 	}
 }
