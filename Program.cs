@@ -3,10 +3,11 @@ using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.AspNetCore.Components.WebAssembly.Authentication;
 using WebAssemblyF;
+using WebAssemblyF.Interface;
+using WebAssemblyF.Services;
 using BlazorBootstrap;
 using Blazored.Modal;
 using WebAssemblyF.Shared;
-
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
@@ -17,7 +18,7 @@ builder.Services.AddHttpClient("ServerAPI",
 	.AddHttpMessageHandler<BaseAddressAuthorizationMessageHandler>();
 
 //builder.Services.AddScoped(sp => new HttpClient { }).AddHttpMessageHandler<BaseAddressAuthorizationMessageHandler>();
-
+builder.Services.AddScoped<IDashboard, DashboardService>();
 
 builder.Services.AddScoped(sp => sp.GetRequiredService<IHttpClientFactory>()
   .CreateClient("ServerAPI"));

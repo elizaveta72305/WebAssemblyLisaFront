@@ -22,8 +22,8 @@ namespace WebAssemblyF.Models
 		[BsonElement("listOfTasksDynamicInProgress")]
 		public ITaskDynamic[] ListOfTasksDynamicInProgress { get; set; }
 
-		//[BsonElement("listOfTasksDynamicSumbitted")]
-		//public ITaskDynamic[] ListOfTasksDynamicSumbitted { get; set; }
+		[BsonElement("listOfTasksDynamicSumbitted")]
+		public ITaskDynamic[] ListOfTasksDynamicSumbitted { get; set; }
 
 		[BsonElement("finishedTasksNumber"), BsonRepresentation(BsonType.Int32)]
 		public int FinishedTasksNumber { get; set; }

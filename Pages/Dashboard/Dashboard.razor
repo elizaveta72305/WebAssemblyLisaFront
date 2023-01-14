@@ -8,24 +8,22 @@
 @using Microsoft.Net.Http.Headers;
 @using System.Net.Http.Headers;
 @using WebAssemblyF.Pages;
+@using WebAssemblyF.Services;
 @using Newtonsoft.Json;
 @using System.IdentityModel.Tokens.Jwt;
 @using WebAssemblyF.Pages.Authentication;
 @using System.Net.Http;
+@using WebAssemblyF.Interface;
 @using BlazorBootstrap;
 
 @attribute [Authorize]
 @inject HttpClient Http
 @inject IModalService Modal;
-@inject IAccessTokenProvider TokenProvider
+@inject IAccessTokenProvider TokenProvider;
+@inject IDashboard DashboardService;
 
 <h3>Your dashboard </h3>
-@if (MyTask == null)
-{
-	<p><em> Loading...</em></p>
-}
-else
-{
+
 	<AuthorizeView Policy="@Policies.IsParticipant">
 		Hello @context.User.Identity.Name <br/>
 		You are participant of competition!
@@ -43,7 +41,7 @@ else
 			</tr>
 		</thead>
 		<tbody>
-			@foreach (var task in MyTask)
+			@foreach (var task in DashboardService.MyTask)
 			{
 				<tr>
 					<td><button @onclick="@(() => Modal.Show<Counter>("Task conditions"))"> Take Task>@task.Name</button></td>
@@ -63,40 +61,28 @@ else
 			}
 		</tbody>
 	</table>
-}
+
 @code {
-	private List<TaskModel> MyTask;
-	private List<TeamModel> MyTeam;
 
 	protected override async Task OnInitializedAsync()
 	{
 		await CallApi();
-
+		await DashboardService.GetAllTaskStatic();
 	}
 
 	async Task CallApi()
 	{
 		var accessTokenResult = await TokenProvider.RequestAccessToken();
 		var AccessToken = string.Empty;
-
-
 		if (accessTokenResult.TryGetToken(out var token))
+
 		{
 			AccessToken = token.Value;
 			var handler = new JwtSecurityTokenHandler();
 			var jwtSecurityToken = handler.ReadJwtToken(AccessToken);
 			var mail = jwtSecurityToken.Claims.First(c => c.Type == "mail").Value;
 		}
-		//var whatsTeam = await Http.Post<List<String>>("/api/Task");
-
 
 		Http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", AccessToken);
-		MyTask = await Http.GetFromJsonAsync<List<TaskModel>>("/api/Task");
-
-
-		MyTeam = await Http.GetFromJsonAsync<List<TeamModel>>("http://localhost:2050/team/readAll");
-
-		Console.WriteLine(MyTeam);
-
 	}
 }
