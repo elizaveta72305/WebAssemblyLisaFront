@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.AspNetCore.Components.WebAssembly.Authentication;
 using WebAssemblyF;
 using WebAssemblyF.Interface;
+using WebAssemblyF.Pages;
 using WebAssemblyF.Services;
 using BlazorBootstrap;
 using Blazored.Modal;
@@ -19,6 +20,9 @@ builder.Services.AddHttpClient("ServerAPI",
 
 //builder.Services.AddScoped(sp => new HttpClient { }).AddHttpMessageHandler<BaseAddressAuthorizationMessageHandler>();
 builder.Services.AddScoped<IDashboard, DashboardService>();
+
+builder.Services.AddTransient<WebAssemblyF.Pages.Index>();
+builder.Services.AddTransient<DashboardService>();
 
 builder.Services.AddScoped(sp => sp.GetRequiredService<IHttpClientFactory>()
   .CreateClient("ServerAPI"));

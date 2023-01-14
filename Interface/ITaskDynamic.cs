@@ -6,7 +6,7 @@ namespace WebAssemblyF.Interface
 	public class ITaskDynamic
 	{
 		[BsonElement("taskStatic")]
-		public ITaskStatic taskStatic { get; set; }
+		ITaskStatic taskStatic { get; set; }
 
 		[BsonElement("startTime"), BsonRepresentation(BsonType.DateTime)]
 		DateTime startTime { get; set; }
@@ -14,11 +14,14 @@ namespace WebAssemblyF.Interface
 		[BsonElement("endTime"), BsonRepresentation(BsonType.DateTime)]
 		DateTime? endTime { get; set; }
 
-		[BsonElement("collaborators")]
-		string[] collaborators { get; set; }
+		[BsonElement("collaboratorEmails")]
+		string[] CollaboratorEmails { get; set; }
 
 		[BsonElement("solution"), BsonRepresentation(BsonType.String)]
 		string? solution { get; set; }
+
+		[BsonElement("points"), BsonRepresentation(BsonType.Int32)]
+		int? points { get; set; }
 	}
 
 }

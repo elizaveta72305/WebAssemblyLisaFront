@@ -2,6 +2,7 @@
 using MongoDB.Bson;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 using WebAssemblyF.Interface;
+using BlazorBootstrap;
 
 namespace WebAssemblyF.Models
 {
@@ -13,17 +14,20 @@ namespace WebAssemblyF.Models
 		[BsonElement("name")]
 		public string Name { get; set; }
 
-		[BsonElement("icon"), BsonRepresentation(BsonType.String)]
+		[BsonElement("icon")]
 		public string? Icon { get; set; }
 
-		[BsonElement("listOfParticipants")]
-		public string[] ListOfParticipants { get; set; }
+		[BsonElement("listOfParticipantsEmail")]
+		public string[] ListOfParticipantsEmail { get; set; }
 
 		[BsonElement("listOfTasksDynamicInProgress")]
 		public ITaskDynamic[] ListOfTasksDynamicInProgress { get; set; }
 
 		[BsonElement("listOfTasksDynamicSumbitted")]
 		public ITaskDynamic[] ListOfTasksDynamicSumbitted { get; set; }
+
+		[BsonElement("listOfTasksDynamicSolved")]
+		public ITaskDynamic[] ListOfTasksDynamicSolved { get; set; }
 
 		[BsonElement("finishedTasksNumber"), BsonRepresentation(BsonType.Int32)]
 		public int FinishedTasksNumber { get; set; }
@@ -38,12 +42,3 @@ namespace WebAssemblyF.Models
 		public int PotentionalPoints { get; set; }
 	}
 }
-//name: string;
-//icon: string;
-//listOfParticipants: string[];
-//listOfTasksDynamicInProgress: ITaskDynamic[];
-//listOfTasksDynamicSumbitted: ITaskDynamic[];
-//finishedTasksNumber: number;
-//openedTasksNumber: number;
-//earnedPoints: number;
-//potentionalPoints: number;

@@ -6,8 +6,13 @@ namespace WebAssemblyF.Interface
 {
 		public interface IDashboard
 		{
-			List<TaskModel> MyTask { get; set; }
-			List<TeamModel> MyTeam { get; set; }
+			List<TaskModel> myStaticTask { get; set; }
+			List<TeamModel> myListOfAllTeams { get; set; }
+			string Team { get; set; }
+			Task Initialise();
 			Task GetAllTaskStatic();
+			Task GetTeamByEmail();
+
+
 		}
 }
