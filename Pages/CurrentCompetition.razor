@@ -1,0 +1,88 @@
+﻿@page "/currnetCompetition";
+@using WebAssemblyF.Models;
+@using Microsoft.AspNetCore.Components.WebAssembly.Authentication;
+@using Microsoft.AspNetCore.Authorization;
+@using Microsoft.AspNetCore.Components;
+@using Microsoft.Extensions.Http;
+@using Microsoft.IdentityModel.Tokens;
+@using Microsoft.Net.Http.Headers;
+@using System.Net.Http.Headers;
+@using WebAssemblyF.Pages;
+@using WebAssemblyF.Services;
+@using Newtonsoft.Json;
+@using System.IdentityModel.Tokens.Jwt;
+@using WebAssemblyF.Pages.Authentication;
+@using System.Net.Http;
+@using WebAssemblyF.Interface;
+@using BlazorBootstrap;
+
+@inject HttpClient Http
+@inject IModalService Modal;
+@inject IAccessTokenProvider TokenProvider;
+@inject IDashboard DashboardService;
+
+<h3>Today is @NameofCurrentCompetition competition</h3>
+
+<table class="table">
+	<thead>
+		<tr>
+			<th>Social Media code</th>
+			<th>Current Competition admin</th>
+		</tr>
+	</thead>
+	<tbody>
+		
+			<tr>
+			<td>@AllCompetitionInfo.SMcode min</td>
+			<td>@AllCompetitionInfo.CompetitionAdmin</td>
+			</tr>
+		
+	</tbody>
+</table>
+
+
+
+@code {
+	string NameofCurrentCompetition { get; set; }
+	public CompetitionModel AllCompetitionInfo { get; set; }
+
+
+	protected override async Task OnInitializedAsync()
+	{
+		await CallApi();
+	}
+
+	async Task CallApi()
+	{
+		var accessTokenResult = await TokenProvider.RequestAccessToken();
+		var AccessToken = string.Empty;
+		string mail = "";
+
+		if (accessTokenResult.TryGetToken(out var token))
+		{
+			AccessToken = token.Value;
+			var handler = new JwtSecurityTokenHandler();
+			var jwtSecurityToken = handler.ReadJwtToken(AccessToken);
+			mail = jwtSecurityToken.Claims.First(c => c.Type == "mail").Value;
+		}
+		Http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", AccessToken);
+
+		var allCompetition = await Http.GetFromJsonAsync<List<CompetitionModel>>("/api/Competition");
+		if(allCompetition  is not null)
+		{
+			foreach(var oneCompetition in allCompetition)
+			{
+				if(oneCompetition.Status == "Running")
+				{
+					NameofCurrentCompetition = oneCompetition.Name;
+					AllCompetitionInfo = oneCompetition;
+				}
+
+			}
+		}
+
+
+}
+}
+
+
