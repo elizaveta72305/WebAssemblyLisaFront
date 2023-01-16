@@ -1,0 +1,144 @@
+﻿@page "/taskStatic"
+@page "/taskStatic/{id}"
+@inject ITaskStaticService TaskStaticService
+@*@if (@hero == null)*@
+
+@if (id == null)
+{
+    <PageTitle>Create a new Task Static</PageTitle>
+    <h3>Create a new Task Static</h3>
+}
+else
+{
+    <PageTitle>Edit task "@taskStatic.name"</PageTitle>
+    <h3>Edit task "@taskStatic.name"</h3>
+}
+
+
+<EditForm Model="taskStatic" OnSubmit="HandleSubmit">
+    <div>
+        <label for="name">Name</label>
+        <InputText id="name" @bind-Value="taskStatic.name" class="form-control"></InputText>
+    </div>
+    <br />
+
+    <div>
+    </div>
+        <label for="name">Category</label>
+        <div>
+        @if (checkBoxData != null)
+        {
+            foreach (var cat in checkBoxData)
+            {
+                var Text = cat;
+                //var Value = ValueField?.Invoke(item).ToString();
+                bool Checked = false;
+                if (taskStatic.category.Contains(cat))
+                {
+                    Checked = true;
+                }
+                <input type="checkbox" checked=@Checked
+                       @onchange="eventArgs => { CheckboxClicked(cat, eventArgs.Value); }" />
+                @Text <br />
+            }
+        }
+    </div>
+    <br />
+
+    <div>
+        <label for="durationLimit">Durtion Limit</label>
+        <InputNumber id="durationLimit" @bind-Value="taskStatic.durationLimit" class="form-control"></InputNumber>
+    </div>
+    <br />
+    <div>
+        <label for="points">Points</label>
+        <InputNumber id="points" @bind-Value="taskStatic.points" class="form-control"></InputNumber>
+    </div>
+    <br />
+    <div>
+        <label for="points">Bonus task</label>
+        <InputText id="points" @bind-Value="taskStatic.bonusTask" class="form-control"></InputText>
+    </div>
+    <br />
+    <div>
+        <label for="points">Extra time</label>
+        <InputNumber id="points" @bind-Value="taskStatic.extraTime" class="form-control"></InputNumber>
+    </div>
+    <br />
+    <div>
+        <label for="points">Extra points</label>
+        <InputNumber id="points" @bind-Value="taskStatic.extraPoints" class="form-control"></InputNumber>
+    </div>
+    <br />
+    <div>
+        <label for="points">Description</label>
+        <InputTextArea id="points" @bind-Value="taskStatic.description" class="form-control" rows="4"></InputTextArea>
+    </div>
+    <br />
+    <button type="submit" class="btn btn-primary">@btnText</button>
+    <button type="button" class="btn btn-danger" @onclick="DeleteTaskStatic">Delete Task Static</button>
+</EditForm>
+
+@code {
+    [Parameter]
+    public string? id { get; set; }
+    string btnText = string.Empty;
+    ITaskStatic taskStatic = new ITaskStatic();
+    List<string> checkBoxData { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        btnText = id == null ? "Save new Task Static" : "Update Task Static";
+        await TaskStaticService.GetTasksStatic();
+        checkBoxData = TaskStaticService.categories;
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (id == null)
+        {
+            //hero.Comic = SuperHeroService.Comics[0];
+            //hero.ComicId = hero.Comic.Id;
+        }
+        else
+        {
+            taskStatic = await TaskStaticService.GetSingleTaskStatic((string)id);
+        }
+    }
+
+    async Task HandleSubmit()
+    {
+        if (id == null)
+        {
+            await TaskStaticService.CreateTaskStatic(taskStatic);
+        }
+        else
+        {
+            await TaskStaticService.UpdateTaskStatic(taskStatic);
+        }
+    }
+    async Task DeleteTaskStatic()
+    {
+        await TaskStaticService.DeleteTaskStatic(taskStatic._id);
+    }
+
+    async Task CheckboxClicked(string cat, object aChecked)
+    {
+        if ((bool)aChecked)
+        {
+            if (!taskStatic.category.Contains(cat))
+            {
+                taskStatic.category.Add(cat);
+            }
+        }
+        else
+        {
+            if (taskStatic.category.Contains(cat))
+            {
+                taskStatic.category.Remove(cat);
+            }
+        }
+    }
+    }
+
+

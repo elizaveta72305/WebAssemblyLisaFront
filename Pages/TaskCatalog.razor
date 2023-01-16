@@ -1,0 +1,56 @@
+﻿@page "/taskcatalog"
+@inject ITaskStaticService TaskStaticService
+@inject NavigationManager NavigationManager
+<PageTitle>Task Catalog</PageTitle>
+<h3>Task Catalog</h3>
+@if (TaskStaticService.tasksStatic != null)
+{
+    <table>
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Category</th>
+                <th>Duration limit</th>
+                <th>Points</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+
+            @foreach (var task in TaskStaticService.tasksStatic)
+            {
+                <tr>
+                    <td>@task.name</td>
+                    <td>@foreach (var cat in task.category)
+                        { <span style="color:seagreen">@cat &nbsp </span>}
+                        </td>
+                    <td>@task.durationLimit</td>
+                    <td>@task.points</td>
+                    <td>
+                        <button class="btn btn-primary" @onclick="(() => ShowTaskStatic(task._id))"><i class="oi oi-pencil"></i></button>
+                    </td>
+                </tr>
+            }
+
+        </tbody>
+    </table>
+    <button class="btn btn-primary" @onclick="CreateNewTaskStatic">Create Task Static</button>
+}
+
+@code{
+    protected override async Task OnInitializedAsync()
+    {
+        await TaskStaticService.GetTasksStatic();
+        //await SuperHeroService.GetComics();
+    }
+    void ShowTaskStatic(string id)
+    {
+        NavigationManager.NavigateTo($"taskStatic/{id}");
+    }
+
+    void CreateNewTaskStatic()
+{
+        NavigationManager.NavigateTo("/taskStatic");
+}
+}
+
