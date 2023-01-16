@@ -28,8 +28,8 @@
 		Hello @context.User.Identity.Name! <br/>
 	You are participant of competition in "<span>@NameofCurrentTeam</span>"<br/>
 
-@if (listOfTasksDynamicSolved is not null)
-	{
+@if (@listOfTasksDynamicSolved is not null)
+		{
 		<h3>List of solved tasks</h3>
 		<table class="table">
 			<thead>
@@ -46,20 +46,98 @@
 				@foreach (var oneTask in @listOfTasksDynamicSolved)
 				{
 					<tr>
-						<td>@oneTask.TaskStatic.Name</td>
+						<td><button type="button" class="btn btn-info" >@oneTask.TaskStatic.Name</button></td>
+ 
+
 						<td>@oneTask.Points</td>
 						<td>@oneTask.StartTime</td>
 						<td>@oneTask.EndTime</td>
 						<td>
 							@foreach (var collaborators in @oneTask.CollaboratorEmails)
 							{
+								<span>@collaborators </span><br />
+							}
+						</td>
+					</tr>
+				}
+			</tbody>
+			</table>
+		}
+
+	@foreach (var SoneTask in @listOfTasksDynamicSubmitted)
+	{
+		@if (@SoneTask.CollaboratorEmails is not null)
+		{
+
+		<h3>List of submitted tasks</h3>
+		<table class="table">
+			<thead>
+				<tr>
+					<th>Submitted task</th>
+					<th>Start time</th>
+					<th>End time</th>
+					<th>Who worked on the task</th>
+				</tr>
+			</thead>
+			<tbody>
+
+				@foreach (var oneTaskS in @listOfTasksDynamicSubmitted)
+				{
+					<tr>
+							<td>@oneTaskS.TaskStatic.Name</td>
+						<td>@oneTaskS.StartTime</td>
+							<td>
+@*								//TIMER
+*@								 </td>
+						<td>
+								@foreach (var collaborators in @oneTaskS.CollaboratorEmails)
+							{
 								<span>@collaborators </span>
+								<br />
 							}
 						</td>
 					</tr>
 				}
 			</tbody>
 		</table>
+	}
+	}
+
+
+	@foreach (var OoneTask in @listOfCurrentOpenedTasks)
+	{
+		@if (@OoneTask.CollaboratorEmails is not null)
+		{
+
+			<h3>List of current opened tasks</h3>
+			<table class="table">
+				<thead>
+					<tr>
+						<th>Submitted task</th>
+						<th>Start time</th>
+						<th>Remaining time</th>
+					</tr>
+				</thead>
+				<tbody>
+
+					@foreach (var oneTaskO in @listOfTasksDynamicSubmitted)
+					{
+						<tr>
+							<td>@oneTaskO.TaskStatic.Name</td>
+							<td>@oneTaskO.StartTime</td>
+							<td> @oneTaskO.StartTime @oneTaskO.EndTime</td>
+							<td>
+								@foreach (var collaborators in @oneTaskO.CollaboratorEmails)
+								{
+									<span>@collaborators </span>
+									<br />
+								}
+							</td>
+						</tr>
+					}
+				</tbody>
+			</table>
+		}
 	}
 
 <h3>Current scores of teams:</h3>
@@ -80,15 +158,14 @@
 		}
 	</tbody>
 </table>
-
 </AuthorizeView>
 
 @code {
-
 	string NameofCurrentTeam { get; set; }
 	public List<ITaskDynamic> listOfTasksDynamicSolved { get; set; } = new List<ITaskDynamic>();
-
 	public List<ITaskDynamic> listOfTasksDynamicSubmitted { get; set; } = new List<ITaskDynamic>();
+	public List<ITaskDynamic> listOfCurrentOpenedTasks { get; set; } = new List<ITaskDynamic>();
+
 
 	public List<TeamModel> AllTeams { get; set; } = new List<TeamModel>();
 	public List<TeamGrade> TeamGrade { get; set; } = new List<TeamGrade>();
@@ -143,6 +220,7 @@
 				{
 					listOfTasksDynamicSolved = oneTeam.ListOfTasksDynamicSolved;
 					listOfTasksDynamicSubmitted = oneTeam.ListOfTasksDynamicSumbitted;
+					listOfCurrentOpenedTasks = oneTeam.ListOfTasksDynamicInProgress;
 				}
 
 				TeamGrade.Add(new TeamGrade(oneTeam.Name, oneTeam.EarnedPoints));
