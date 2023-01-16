@@ -46,7 +46,7 @@
 				@foreach (var oneTask in @listOfTasksDynamicSolved)
 				{
 					<tr>
-						<td><button type="button" class="btn btn-info" >@oneTask.TaskStatic.Name</button></td>
+						<td><button type="button" class="btn btn-info" >@oneTask.TaskStatic.name</button></td>
  
 
 						<td>@oneTask.Points</td>
@@ -84,7 +84,7 @@
 				@foreach (var oneTaskS in @listOfTasksDynamicSubmitted)
 				{
 					<tr>
-							<td>@oneTaskS.TaskStatic.Name</td>
+							<td>@oneTaskS.TaskStatic.name</td>
 						<td>@oneTaskS.StartTime</td>
 							<td>
 @*								//TIMER
@@ -123,7 +123,7 @@
 					@foreach (var oneTaskO in @listOfTasksDynamicSubmitted)
 					{
 						<tr>
-							<td>@oneTaskO.TaskStatic.Name</td>
+							<td>@oneTaskO.TaskStatic.name</td>
 							<td>@oneTaskO.StartTime</td>
 							<td> @oneTaskO.StartTime @oneTaskO.EndTime</td>
 							<td>

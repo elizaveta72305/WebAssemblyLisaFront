@@ -1,4 +1,6 @@
 global using Microsoft.AspNetCore.Components.Authorization;
+global using WebAssemblyF.Services.TaskStaticService;
+global using WebAssemblyF.Models;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.AspNetCore.Components.WebAssembly.Authentication;
@@ -6,6 +8,8 @@ using WebAssemblyF;
 using WebAssemblyF.Interface;
 using WebAssemblyF.Pages;
 using WebAssemblyF.Services;
+
+
 using BlazorBootstrap;
 using Blazored.Modal;
 using WebAssemblyF.Shared;
@@ -20,6 +24,7 @@ builder.Services.AddHttpClient("ServerAPI",
 
 //builder.Services.AddScoped(sp => new HttpClient { }).AddHttpMessageHandler<BaseAddressAuthorizationMessageHandler>();
 builder.Services.AddScoped<IDashboard, DashboardService>();
+builder.Services.AddScoped<ITaskStaticService, TaskStaticService>();
 
 builder.Services.AddTransient<WebAssemblyF.Pages.Index>();
 builder.Services.AddTransient<DashboardService>();
