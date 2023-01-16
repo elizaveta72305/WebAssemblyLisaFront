@@ -13,8 +13,8 @@
 @using System.IdentityModel.Tokens.Jwt;
 @using WebAssemblyF.Pages.Authentication;
 @using System.Net.Http;
-@using WebAssemblyF.Interface;
 @using BlazorBootstrap;
+@using WebAssemblyF.Interface;
 
 @attribute [Authorize(Policy=Policies.IsParticipant)]
 @inject HttpClient Http
@@ -22,58 +22,76 @@
 @inject IAccessTokenProvider TokenProvider;
 @inject IDashboard DashboardService;
 
-<h3>Your dashboard </h3>
+<h1>Your personal dashboard </h1>
 
 	<AuthorizeView Policy="@Policies.IsParticipant">
 		Hello @context.User.Identity.Name! <br/>
+	You are participant of competition in "<span>@NameofCurrentTeam</span>"<br/>
 
-	You are participant of competition in "<span>@NameofCurrentTeam</span>"
+@if (listOfTasksDynamicSolved is not null)
+	{
+		<h3>List of solved tasks</h3>
+		<table class="table">
+			<thead>
+				<tr>
+					<th>Solved task</th>
+					<th>Points</th>
+					<th>Start time</th>
+					<th>End time</th>
+					<th>Who worked on the task</th>
+				</tr>
+			</thead>
+			<tbody>
 
-	@foreach (var task in @listOfTasksDynamicSolved)
+				@foreach (var oneTask in @listOfTasksDynamicSolved)
 				{
-		<span>@task </span>
+					<tr>
+						<td>@oneTask.TaskStatic.Name</td>
+						<td>@oneTask.Points</td>
+						<td>@oneTask.StartTime</td>
+						<td>@oneTask.EndTime</td>
+						<td>
+							@foreach (var collaborators in @oneTask.CollaboratorEmails)
+							{
+								<span>@collaborators </span>
+							}
+						</td>
+					</tr>
+				}
+			</tbody>
+		</table>
 	}
 
-</AuthorizeView>
-
+<h3>Current scores of teams:</h3>
 <table class="table">
 	<thead>
 		<tr>
-			<th>Name</th>
-			<th>TaskCategory</th>
-			<th>DurationLimit</th>
-			<th>Points</th>
-			<th>ExtraTime</th>
-			<th>ExtraPoints</th>
+			<th scope="col">Team Name</th>
+			<th scope="col">Grade</th>
 		</tr>
 	</thead>
 	<tbody>
-		@foreach (var task in DashboardService.myStaticTask)
+		@foreach (var team in TeamGrade)
 		{
 			<tr>
-				<td><button @onclick="@(() => Modal.Show<Counter>("Task conditions"))"> Take Task>@task.Name</button></td>
-
-				<td>
-					@foreach (var category in @task.TaskCategory)
-					{
-						<span>@category </span>
-					}
-				</td>
-				<td>@task.DurationLimit min</td>
-				<td>@task.Points</td>
-				<td>@task.ExtraTime min</td>
-				<td>@task.ExtraPoints </td>
-				<p><Button Color="ButtonColor.Success" @onclick="@(() => Modal.Show<Counter>("Task conditions"))"> Take Task </Button></p>
+				<td scope="row">@team.teamName</td>
+				<td scope="row">@team.score</td>
 			</tr>
 		}
 	</tbody>
 </table>
 
+</AuthorizeView>
+
 @code {
 
 	string NameofCurrentTeam { get; set; }
-	public ITaskDynamic[] listOfTasksDynamicSolved { get; set; }
+	public List<ITaskDynamic> listOfTasksDynamicSolved { get; set; } = new List<ITaskDynamic>();
 
+	public List<ITaskDynamic> listOfTasksDynamicSubmitted { get; set; } = new List<ITaskDynamic>();
+
+	public List<TeamModel> AllTeams { get; set; } = new List<TeamModel>();
+	public List<TeamGrade> TeamGrade { get; set; } = new List<TeamGrade>();
 
 	protected override async Task OnInitializedAsync()
 	{
@@ -111,16 +129,27 @@
 			}
 		}
 
-		var getTeams = await Http.GetFromJsonAsync<List<TeamModel>>("http://localhost:2050/team/readAll");
-		if (getTeams is not null)
+		var getTeams = await Http.GetAsync("http://localhost:2050/team/readAll");
+		string content = await getTeams.Content.ReadAsStringAsync();
+		var checkAllTeams = JsonConvert.DeserializeObject<List<TeamModel>>(content);
+
+		//var secontallUsers = await Http.GetFromJsonAsync<List<TeamModel>>("http://localhost:2050/team/readAll");
+
+		if (checkAllTeams is not null)
 		{
-			foreach (var oneTeam in getTeams)
+			foreach (var oneTeam in checkAllTeams)
 			{
 				if (oneTeam.Name == NameofCurrentTeam)
 				{
 					listOfTasksDynamicSolved = oneTeam.ListOfTasksDynamicSolved;
+					listOfTasksDynamicSubmitted = oneTeam.ListOfTasksDynamicSumbitted;
 				}
-				}
+
+				TeamGrade.Add(new TeamGrade(oneTeam.Name, oneTeam.EarnedPoints));
 			}
-	}
+		}
+
+
+		TeamGrade.Sort((a, b) => b.score.CompareTo(a.score));
+		}
 }

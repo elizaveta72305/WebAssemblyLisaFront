@@ -1,18 +1,13 @@
-﻿using System.Threading.Tasks;
-using WebAssemblyF.Models;
-using WebAssemblyF.Services;
+﻿using WebAssemblyF.Models;
 
 namespace WebAssemblyF.Interface
 {
-		public interface IDashboard
-		{
-			List<TaskModel> myStaticTask { get; set; }
-			List<TeamModel> myListOfAllTeams { get; set; }
-			string Team { get; set; }
-			Task Initialise();
-			Task GetAllTaskStatic();
-			Task GetTeamByEmail();
+	public class IDashboard
+	{
+		public List<TaskModel> myStaticTask { get; set; } = new List<TaskModel>();
+		public List<TeamModel> myListOfAllTeams { get; set; } = new List<TeamModel>();
+		public List<TaskModel> Users { get; set; } = new List<TaskModel>();
+		public string Team { get; set; }
 
-
-		}
+	}
 }

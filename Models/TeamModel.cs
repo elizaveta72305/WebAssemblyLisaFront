@@ -1,11 +1,10 @@
 ﻿using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson;
-using static System.Runtime.InteropServices.JavaScript.JSType;
-using WebAssemblyF.Interface;
-using BlazorBootstrap;
 
 namespace WebAssemblyF.Models
 {
+    [Serializable, BsonIgnoreExtraElements]
+
 	public class TeamModel
 	{
 		[BsonId, BsonRepresentation(BsonType.ObjectId)]
@@ -21,13 +20,13 @@ namespace WebAssemblyF.Models
 		public string[] ListOfParticipantsEmail { get; set; }
 
 		[BsonElement("listOfTasksDynamicInProgress")]
-		public ITaskDynamic[] ListOfTasksDynamicInProgress { get; set; }
+		public List<ITaskDynamic> ListOfTasksDynamicInProgress { get; set; }
 
 		[BsonElement("listOfTasksDynamicSumbitted")]
-		public ITaskDynamic[] ListOfTasksDynamicSumbitted { get; set; }
+		public List<ITaskDynamic> ListOfTasksDynamicSumbitted { get; set; }
 
 		[BsonElement("listOfTasksDynamicSolved")]
-		public ITaskDynamic[] ListOfTasksDynamicSolved { get; set; }
+		public List<ITaskDynamic> ListOfTasksDynamicSolved { get; set; }
 
 		[BsonElement("finishedTasksNumber"), BsonRepresentation(BsonType.Int32)]
 		public int FinishedTasksNumber { get; set; }
