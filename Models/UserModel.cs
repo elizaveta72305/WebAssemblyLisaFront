@@ -22,9 +22,10 @@ namespace WebAssemblyF.Models
 		public string lastName { get; set; }
 
 		[BsonElement("teamName"), BsonRepresentation(BsonType.String)]
-		public string? TeamName { get; set; }
+		public string? teamName { get; set; }
 
 		[BsonElement("role")]
-		public string[]? role { get; set; }
-	}
+		public List<string> role { get; set; }
+
+    }
 }

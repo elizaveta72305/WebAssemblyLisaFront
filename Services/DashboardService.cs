@@ -64,9 +64,9 @@ namespace WebAssemblyF.Services
 
 			foreach(var oneUser in result)
 			{
-				if(oneUser.Email == userEmail)
+				if(oneUser.email == userEmail)
 				{
-					Team = oneUser.TeamName;
+					Team = oneUser.teamName;
 				}
 			}
 		}

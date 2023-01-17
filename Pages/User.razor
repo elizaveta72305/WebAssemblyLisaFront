@@ -1,0 +1,128 @@
+﻿@page "/user"
+@page "/user/{id}"
+@inject IUserService UserService
+@*@if (@hero == null)*@
+
+@if (id == null)
+{
+    <PageTitle>Create new User</PageTitle>
+    <h3>Create new User</h3>
+}
+else
+{
+    <PageTitle>Edit User "@user.email"</PageTitle>
+    <h3>Edit User "@user.email"</h3>
+}
+
+
+<EditForm Model="user" OnSubmit="HandleSubmit">
+    <div>
+        <label for="name">First Name</label>
+        <InputText id="name" @bind-Value="user.firstName" class="form-control"></InputText>
+    </div>
+    <br />
+    <div>
+        <label for="name">Last Name</label>
+        <InputText id="name" @bind-Value="user.lastName" class="form-control"></InputText>
+    </div>
+    <br />
+    <div>
+        <label for="name">E-mail</label>
+        <InputText id="name" @bind-Value="user.email" class="form-control"></InputText>
+    </div>
+    <br />
+    <div>
+        <label for="name">Team</label>
+        <InputText id="name" @bind-Value="user.teamName" class="form-control"></InputText>
+    </div>
+    <br />
+
+    <label for="name">Roles</label>
+    <div>
+        @if (checkBoxData != null)
+        {
+            foreach (var rl in checkBoxData)
+            {
+                var Text = rl;
+                //var Value = ValueField?.Invoke(item).ToString();
+                bool Checked = false;
+                if ((user.role != null) && (user.role.Contains(rl)))
+                {
+                    Checked = true;
+                }
+                <input type="checkbox" checked=@Checked
+                       @onchange="eventArgs => { CheckboxClicked(rl, eventArgs.Value); }" />
+                @Text <br />
+            }
+        }
+    </div>
+    <br />
+
+
+    <button type="submit" class="btn btn-primary">@btnText</button>
+    <button type="button" class="btn btn-danger" @onclick="DeleteUser">Delete User</button>
+</EditForm>
+
+@code {
+    [Parameter]
+    public string? id { get; set; }
+    string btnText = string.Empty;
+    UserModel user = new UserModel();
+    List<string> checkBoxData { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        btnText = id == null ? "Save new User" : "Update User";
+        await UserService.GetUsers();
+        checkBoxData = UserService.Roles;
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (id == null)
+        {
+            //hero.Comic = SuperHeroService.Comics[0];
+            //hero.ComicId = hero.Comic.Id;
+        }
+        else
+        {
+            user = await UserService.GetSingleUser((string)id);
+        }
+    }
+
+    async Task HandleSubmit()
+    {
+        if (id == null)
+        {
+            await UserService.CreateUser(user);
+        }
+        else
+        {
+            await UserService.UpdateUser(user);
+        }
+    }
+    async Task DeleteUser()
+    {
+        await UserService.DeleteUser(user._id);
+    }
+
+    async Task CheckboxClicked(string cat, object aChecked)
+    {
+        if ((bool)aChecked)
+        {
+            if (!user.role.Contains(cat))
+            {
+                user.role.Add(cat);
+            }
+        }
+        else
+        {
+            if (user.role.Contains(cat))
+            {
+                user.role.Remove(cat);
+            }
+        }
+    }
+    }
+
+

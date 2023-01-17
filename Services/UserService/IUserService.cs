@@ -5,6 +5,7 @@ namespace WebAssemblyF.Services.UserService
 	public interface IUserService
     {
         public List<UserModel> users { get; set; }
+        public List<string> Roles { get; set; }
         public Task GetUsers();
         public Task<UserModel> GetSingleUser(string id);
         public Task CreateUser(UserModel user);
