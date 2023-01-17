@@ -25,7 +25,7 @@ namespace WebAssemblyF.Models
 		public string? teamName { get; set; }
 
 		[BsonElement("role")]
-		public List<string> role { get; set; }
+		public List<string> role { get; set; } = new List<string>();
 
     }
 }
