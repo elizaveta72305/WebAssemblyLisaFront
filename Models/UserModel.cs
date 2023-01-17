@@ -10,9 +10,12 @@ namespace WebAssemblyF.Models
 		public string? UserId { get; set; }
 
 		[BsonElement("email"), BsonRepresentation(BsonType.String)]
-		public string Email { get; set; }
+		public string email { get; set; }
 
-		[BsonElement("firstName"), BsonRepresentation(BsonType.String)]
+        [BsonElement("_id"), BsonRepresentation(BsonType.String)]
+        public string _id { get; set; }
+
+        [BsonElement("firstName"), BsonRepresentation(BsonType.String)]
 		public string firstName { get; set; }
 
 		[BsonElement("lastName"), BsonRepresentation(BsonType.String)]
@@ -22,6 +25,6 @@ namespace WebAssemblyF.Models
 		public string? TeamName { get; set; }
 
 		[BsonElement("role")]
-		public string[]? Role { get; set; }
+		public string[]? role { get; set; }
 	}
 }
