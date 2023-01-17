@@ -21,6 +21,8 @@
 @inject IModalService Modal;
 @inject IAccessTokenProvider TokenProvider;
 @inject IDashboard DashboardService;
+@inject IJSRuntime JSRuntime;
+
 
 <h1>Your personal dashboard </h1>
 
@@ -28,9 +30,14 @@
 		Hello @context.User.Identity.Name! <br/>
 	You are participant of competition in "<span>@NameofCurrentTeam</span>"<br/>
 
-@if (@listOfTasksDynamicSolved is not null)
+
+	@foreach (var checkList in @listOfTasksDynamicSolved)
+	{
+	@if (@checkList.TaskStatic.name is not null)
 		{
+
 		<h3>List of solved tasks</h3>
+
 		<table class="table">
 			<thead>
 				<tr>
@@ -63,12 +70,12 @@
 			</tbody>
 			</table>
 		}
+	}
 
 	@foreach (var SoneTask in @listOfTasksDynamicSubmitted)
 	{
 		@if (@SoneTask.CollaboratorEmails is not null)
 		{
-
 		<h3>List of submitted tasks</h3>
 		<table class="table">
 			<thead>
@@ -85,11 +92,9 @@
 				{
 					<tr>
 							<td>@oneTaskS.TaskStatic.name</td>
-						<td>@oneTaskS.StartTime</td>
+							<td>@oneTaskS.StartTime</td>
+							<td>@oneTaskS.EndTime</td>
 							<td>
-@*								//TIMER
-*@								 </td>
-						<td>
 								@foreach (var collaborators in @oneTaskS.CollaboratorEmails)
 							{
 								<span>@collaborators </span>
@@ -108,32 +113,51 @@
 	{
 		@if (@OoneTask.CollaboratorEmails is not null)
 		{
-
 			<h3>List of current opened tasks</h3>
 			<table class="table">
 				<thead>
 					<tr>
-						<th>Submitted task</th>
+						<th>Name of task</th>
 						<th>Start time</th>
 						<th>Remaining time</th>
+						<th>Collaborators</th>
+
 					</tr>
 				</thead>
 				<tbody>
 
-					@foreach (var oneTaskO in @listOfTasksDynamicSubmitted)
+					@foreach (var oneTaskO in @listOfCurrentOpenedTasks)
 					{
-						<tr>
-							<td>@oneTaskO.TaskStatic.name</td>
-							<td>@oneTaskO.StartTime</td>
-							<td> @oneTaskO.StartTime @oneTaskO.EndTime</td>
-							<td>
-								@foreach (var collaborators in @oneTaskO.CollaboratorEmails)
-								{
-									<span>@collaborators </span>
-									<br />
-								}
-							</td>
-						</tr>
+						@*@foreach (var number in listOfTaskTime)
+						{*@
+							<tr>
+								<td>@oneTaskO.TaskStatic.name</td>
+								<td>@oneTaskO.StartTime</td>
+
+								<td>
+@*									@StartTimer(number)
+*@
+									<div id="countdown"></div>
+									</td>
+
+								<td>
+									@foreach (var collaborators in @oneTaskO.CollaboratorEmails)
+									{
+										<span>@collaborators </span>
+										<br />
+									}
+								
+								</td>
+								<td>
+								<div class="input-group mb-3">
+									<input type="text" class="form-control" placeholder="Link on GitHub" @bind="@inputValue" @oninput="@(x => { inputValue = (string) x.Value;})" aria-label="Recipient's username" aria-describedby="basic-addon2">
+									<div class="input-group-append">
+										<button type="button" class="btn btn-success" @onclick="@(() => sendTask(oneTaskO.TaskStatic.name, inputValue))">Send task</button>
+									</div>
+								</div>
+
+								</td>
+							</tr>
 					}
 				</tbody>
 			</table>
@@ -161,73 +185,102 @@
 </AuthorizeView>
 
 @code {
-	string NameofCurrentTeam { get; set; }
-	public List<ITaskDynamic> listOfTasksDynamicSolved { get; set; } = new List<ITaskDynamic>();
-	public List<ITaskDynamic> listOfTasksDynamicSubmitted { get; set; } = new List<ITaskDynamic>();
-	public List<ITaskDynamic> listOfCurrentOpenedTasks { get; set; } = new List<ITaskDynamic>();
+    string NameofCurrentTeam { get; set; }
+    public List<ITaskDynamic> listOfTasksDynamicSolved { get; set; } = new List<ITaskDynamic>();
+    public List<ITaskDynamic> listOfTasksDynamicSubmitted { get; set; } = new List<ITaskDynamic>();
+    public List<ITaskDynamic> listOfCurrentOpenedTasks { get; set; } = new List<ITaskDynamic>();
+    //public int[] listOfTaskTime { get; set; } = new int[100];
+	   //public List<ITaskDynamic> listOfCurrentOpenedTasks { get; set; } = new List<ITaskDynamic>();
+
+    public List<TeamModel> AllTeams { get; set; } = new List<TeamModel>();
+    public List<TeamGrade> TeamGrade { get; set; } = new List<TeamGrade>();
+
+    private string inputValue { get; set; }
 
 
-	public List<TeamModel> AllTeams { get; set; } = new List<TeamModel>();
-	public List<TeamGrade> TeamGrade { get; set; } = new List<TeamGrade>();
 
-	protected override async Task OnInitializedAsync()
-	{
-		await CallApi();
+    protected override async Task OnInitializedAsync()
+    {
+        await CallApi();
+        //await DashboardService.GetAllTaskStatic();
+        //await DashboardService.Initialise();
+        //await DashboardService.GetTeamByEmail();
+    }
 
-		//await DashboardService.GetAllTaskStatic();
-		//await DashboardService.Initialise();
-		//await DashboardService.GetTeamByEmail();
+    async Task CallApi()
+    {
+        var accessTokenResult = await TokenProvider.RequestAccessToken();
+        var AccessToken = string.Empty;
+        string mail = "";
+
+        if (accessTokenResult.TryGetToken(out var token))
+        {
+            AccessToken = token.Value;
+            var handler = new JwtSecurityTokenHandler();
+            var jwtSecurityToken = handler.ReadJwtToken(AccessToken);
+            mail = jwtSecurityToken.Claims.First(c => c.Type == "mail").Value;
+        }
+        Http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", AccessToken);
+
+        var allUsers = await Http.GetFromJsonAsync<List<UserModel>>("/api/User");
+        if (allUsers is not null)
+        {
+            foreach (var oneUser in allUsers)
+            {
+                if (oneUser.Email == mail)
+                {
+                    NameofCurrentTeam = oneUser.TeamName;
+                }
+            }
+        }
+
+        var getTeams = await Http.GetAsync("http://localhost:2050/team/readAll");
+        string content = await getTeams.Content.ReadAsStringAsync();
+        var checkAllTeams = JsonConvert.DeserializeObject<List<TeamModel>>(content);
+
+        //var secontallUsers = await Http.GetFromJsonAsync<List<TeamModel>>("http://localhost:2050/team/readAll");
+
+        if (checkAllTeams is not null)
+        {
+            foreach (var oneTeam in checkAllTeams)
+            {
+                if (oneTeam.Name == NameofCurrentTeam)
+                {
+                    listOfTasksDynamicSolved = oneTeam.ListOfTasksDynamicSolved;
+                    listOfTasksDynamicSubmitted = oneTeam.ListOfTasksDynamicSumbitted;
+                    listOfCurrentOpenedTasks = oneTeam.ListOfTasksDynamicInProgress;
+
+                    //foreach (var oneTask in oneTeam.ListOfTasksDynamicInProgress)
+                    //{
+
+                    //await JSRuntime.InvokeAsync<object>("startTimer", listOfTaskTime);
+                }
+
+                TeamGrade.Add(new TeamGrade(oneTeam.Name, oneTeam.EarnedPoints));
+            }
+        }
+        TeamGrade.Sort((a, b) => b.score.CompareTo(a.score));
+    }
+
+    async Task sendTask(string taskName, string inputValue)
+    {
+   //     var accessTokenResult = await TokenProvider.RequestAccessToken();
+   //     var AccessToken = string.Empty;
+
+   //     if (accessTokenResult.TryGetToken(out var token)) AccessToken = token.Value;
+
+   //     Http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", AccessToken);
+   //     var json = JsonConvert.SerializeObject(new { taskName, inputValue });
+   //     var request = new HttpRequestMessage(HttpMethod.Post, "http://localhost:2050/teamManager/submitTask/")
+			//{
+			//	Content = new StringContent(json, System.Text.Encoding.UTF8, "application/json")
+			//};
+
+		//var req = await Http.PostAsJsonAsync("http://localhost:2050/teamManager/submitTask/", params);
 	}
 
-	async Task CallApi()
-	{
-		var accessTokenResult = await TokenProvider.RequestAccessToken();
-		var AccessToken = string.Empty;
-		string mail = "";
+	private async Task StartTimer(int number)
+	{		await JSRuntime.InvokeAsync<object>("startTimer", number);
+	}
 
-		if (accessTokenResult.TryGetToken(out var token))
-		{
-			AccessToken = token.Value;
-			var handler = new JwtSecurityTokenHandler();
-			var jwtSecurityToken = handler.ReadJwtToken(AccessToken);
-			mail = jwtSecurityToken.Claims.First(c => c.Type == "mail").Value;
-		}
-		Http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", AccessToken);
-
-		var allUsers = await Http.GetFromJsonAsync<List<UserModel>>("/api/User");
-		if (allUsers is not null)
-		{
-			foreach (var oneUser in allUsers)
-			{
-				if (oneUser.Email == mail)
-				{
-					NameofCurrentTeam = oneUser.TeamName;
-				}
-			}
-		}
-
-		var getTeams = await Http.GetAsync("http://localhost:2050/team/readAll");
-		string content = await getTeams.Content.ReadAsStringAsync();
-		var checkAllTeams = JsonConvert.DeserializeObject<List<TeamModel>>(content);
-
-		//var secontallUsers = await Http.GetFromJsonAsync<List<TeamModel>>("http://localhost:2050/team/readAll");
-
-		if (checkAllTeams is not null)
-		{
-			foreach (var oneTeam in checkAllTeams)
-			{
-				if (oneTeam.Name == NameofCurrentTeam)
-				{
-					listOfTasksDynamicSolved = oneTeam.ListOfTasksDynamicSolved;
-					listOfTasksDynamicSubmitted = oneTeam.ListOfTasksDynamicSumbitted;
-					listOfCurrentOpenedTasks = oneTeam.ListOfTasksDynamicInProgress;
-				}
-
-				TeamGrade.Add(new TeamGrade(oneTeam.Name, oneTeam.EarnedPoints));
-			}
-		}
-
-
-		TeamGrade.Sort((a, b) => b.score.CompareTo(a.score));
-		}
 }

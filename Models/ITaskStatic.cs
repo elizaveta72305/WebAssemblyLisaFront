@@ -28,9 +28,8 @@ namespace WebAssemblyF.Models
 
     public class ITaskStatic
     {
-        [JsonProperty("description")]
-        [BsonElement("description"), BsonRepresentation(BsonType.String)]
-        public string _id { get; set; }
+		[BsonId, BsonRepresentation(BsonType.ObjectId)]
+		public string? _id { get; set; }
 
         [BsonId, BsonRepresentation(BsonType.ObjectId)]
         public string? STaskId { get; set; }
@@ -41,7 +40,7 @@ namespace WebAssemblyF.Models
 
         [JsonProperty("category")]
         [BsonElement("category")]
-        public List<string> category { get; set; }
+        public List<string> category { get; set; } = new List<string>();
 
         [JsonProperty("durationLimit")]
         [BsonElement("durationLimit"), BsonRepresentation(BsonType.Int32)]
@@ -64,10 +63,7 @@ namespace WebAssemblyF.Models
         public int extraPoints { get; set; }
 
         [JsonProperty("description")]
-        [BsonElement("description"), BsonRepresentation(BsonType.String)]
-        public string description { get; set; }
-
-
+        public string? description { get; set; }
 
     }
 }

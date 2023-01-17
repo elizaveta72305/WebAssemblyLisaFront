@@ -11,12 +11,12 @@ using WebAssemblyF.Pages;
 using WebAssemblyF.Pages.Authentication;
 using static System.Net.WebRequestMethods;
 
-
 namespace WebAssemblyF.Services
 {
 	public class DashboardService: IDashboard 
 	{
 		private readonly HttpClient _http;
+		private readonly IHttpClientFactory _httpF;
 		private readonly NavigationManager _navigationManager;
 		private readonly Pages.Index _tokenClass;
 		private string userEmail;
@@ -28,9 +28,9 @@ namespace WebAssemblyF.Services
 			_tokenClass = tokenClass;
 		}
 
-		public List<TaskModel> myStaticTask { get; set; } = new List<TaskModel>();
+		//public List<TaskModel> myStaticTask { get; set; } = new List<TaskModel>();
 		public List<TeamModel> myListOfAllTeams { get; set; } = new List<TeamModel>();
-		public List<TaskModel> Users { get; set; } = new List<TaskModel>();
+		//public List<TaskModel> Users { get; set; } = new List<TaskModel>();
 		public string Team { get; set; }
 		public async Task Initialise()
 		{ 
@@ -39,13 +39,13 @@ namespace WebAssemblyF.Services
 
 			public async Task GetAllTaskStatic()
 			{
-			var result = await _http.GetFromJsonAsync<List<TaskModel>>("/api/Task");
-				if (result != null)
-                myStaticTask = result; //ПЕРЕИМЕНОВАТЬ В СТАТИЧЕСКИЕ ТАСКИ.
-					else
-				{
-				Console.WriteLine("Error of getting all taskes");
-				}
+			//var result = await _http.GetFromJsonAsync<List<TaskModel>>("/api/Task");
+			//	if (result != null)
+   //             myStaticTask = result; //ПЕРЕИМЕНОВАТЬ В СТАТИЧЕСКИЕ ТАСКИ.
+			//		else
+			//	{
+			//	Console.WriteLine("Error of getting all taskes");
+			//	}
 			}
 		public async Task GetAllTeams()
 		{
@@ -69,6 +69,13 @@ namespace WebAssemblyF.Services
 					Team = oneUser.TeamName;
 				}
 			}
+		}
+		public async Task sendTask(string taskName, string inputValue)
+		{
+			var client = _httpF.CreateClient("BlazorWasmApp.AnonymousAPI");
+			var parameters = new Dictionary<string, string> { { "taskName", taskName }, { "solution", inputValue } };
+			var encodedContent = new FormUrlEncodedContent(parameters);
+			var req = await client.PostAsJsonAsync("http://localhost:2050/teamManager/submitTask/", encodedContent);
 		}
 	}
 }

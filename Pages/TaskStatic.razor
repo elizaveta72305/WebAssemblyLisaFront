@@ -1,7 +1,7 @@
 ﻿@page "/taskStatic"
 @page "/taskStatic/{id}"
 @inject ITaskStaticService TaskStaticService
-@*@if (@hero == null)*@
+@if (@taskStatic is not null){
 
 @if (id == null)
 {
@@ -78,7 +78,7 @@ else
     <button type="submit" class="btn btn-primary">@btnText</button>
     <button type="button" class="btn btn-danger" @onclick="DeleteTaskStatic">Delete Task Static</button>
 </EditForm>
-
+}
 @code {
     [Parameter]
     public string? id { get; set; }
