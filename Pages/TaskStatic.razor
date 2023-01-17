@@ -33,7 +33,7 @@ else
                 var Text = cat;
                 //var Value = ValueField?.Invoke(item).ToString();
                 bool Checked = false;
-                if (taskStatic.category.Contains(cat))
+                if ((taskStatic.category != null) &&(taskStatic.category.Contains(cat)))
                 {
                     Checked = true;
                 }
