@@ -1,0 +1,61 @@
+﻿@page "/users"
+@inject IUserService UserService
+@inject NavigationManager NavigationManager
+<PageTitle>Users</PageTitle>
+<h3>Users</h3>
+@if (UserService.users != null)
+{
+    <table>
+        <thead>
+            <tr>
+                <th>First Name</th>
+                <th>Last Name</th>
+                <th>Email</th>
+                <th>Team</th>
+                <th>Roles</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+
+            @foreach (var usr in UserService.users)
+            {
+                <tr>
+                    <td>@usr.firstName</td>
+                    <td>@usr.lastName</td>
+                    <td>@usr.email</td>
+                    <td>@usr.teamName</td>
+                    @if (usr.role != null)
+                    {
+                        <td>
+                            @foreach (var role in usr.role)
+                            {<span style="color:seagreen">@role &nbsp </span>}
+                    </td>
+                    }
+                    <td>
+                        <button class="btn btn-primary" @onclick="(() => ShowUser(usr._id))"><i class="oi oi-pencil"></i></button>
+                    </td>
+                </tr>
+            }
+
+        </tbody>
+    </table>
+    <button class="btn btn-primary" @onclick="CreateNewUser">Create User</button>
+}
+
+@code{
+    protected override async Task OnInitializedAsync()
+    {
+        await UserService.GetUsers();
+    }
+    void ShowUser(string id)
+    {
+        NavigationManager.NavigateTo($"user/{id}");
+    }
+
+    void CreateNewUser()
+{
+        NavigationManager.NavigateTo("/user");
+}
+}
+
