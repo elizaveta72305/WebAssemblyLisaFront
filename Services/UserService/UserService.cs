@@ -30,8 +30,8 @@ public class UserService : IUserService
         {
             _httpF = httpF;
             _navigationManager = navigationManager;
-            Roles.Add("SystemAdministrator");
-            Roles.Add("CompetitionAdministrator");
+            Roles.Add("System administrator");
+            Roles.Add("Competition administrator");
             Roles.Add("Participant");
         }
 
