@@ -1,6 +1,7 @@
 ﻿@page "/taskcatalog"
 @inject ITaskStaticService TaskStaticService
 @inject NavigationManager NavigationManager
+@attribute [Authorize(Policy = Policies.IsAdmin)]
 <PageTitle>Task Catalog</PageTitle>
 <h3>Task Catalog</h3>
 @if (TaskStaticService.tasksStatic != null)
@@ -21,16 +22,17 @@
             {
                 <tr>
                     <td>@task.name</td>
-                    <td>@foreach (var cat in task.category)
-                        { <span style="color:seagreen">@cat &nbsp </span>}
-                        </td>
-                    <td>@task.durationLimit</td>
-                    <td>@task.points</td>
                     <td>
-                        <button class="btn btn-primary" @onclick="(() => ShowTaskStatic(task._id))"><i class="oi oi-pencil"></i></button>
-                    </td>
-                </tr>
-            }
+                        @foreach (var cat in task.category)
+                        {<span style="color:seagreen">@cat &nbsp </span>}
+                </td>
+                <td>@task.durationLimit</td>
+                <td>@task.points</td>
+                <td>
+                    <button class="btn btn-primary" @onclick="(() => ShowTaskStatic(task._id))"><i class="oi oi-pencil"></i></button>
+                </td>
+            </tr>
+        }
 
         </tbody>
     </table>
@@ -49,8 +51,8 @@
     }
 
     void CreateNewTaskStatic()
-{
+    {
         NavigationManager.NavigateTo("/taskStatic");
-}
+    }
 }
 
