@@ -17,7 +17,7 @@ namespace WebAssemblyF.Models
 		public string? Icon { get; set; }
 
 		[BsonElement("listOfParticipantsEmail")]
-		public string[] ListOfParticipantsEmail { get; set; }
+		public List<string> ListOfParticipantsEmail { get; set; }
 
 		[BsonElement("listOfTasksDynamicInProgress")]
 		public List<ITaskDynamic> ListOfTasksDynamicInProgress { get; set; }

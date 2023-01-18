@@ -140,34 +140,51 @@
 			</table>
 		}
 
-
-		
 			<h3>List of tasks you able to pick</h3>
 			<table class="table">
 				<thead>
 					<tr>
 						<th>Name of task</th>
 					</tr>
-			
 				</thead>
 				<tbody>
-					@foreach (var task in taskYouAbleToPick)
-					{
-						<tr>
-						<td>@task</td>
-						<td>
-						<div class="input-group mb-3">
-							<input id=@generateID type="text" class="form-control" placeholder="Emails of collaborators" @bind="@inputEmails" @oninput="@(x => { inputEmails = (string) x.Value;})" aria-label="Recipient's username" aria-describedby="basic-addon2">
-							<div class="input-group-append">
-								<button type="button" class="btn btn-success" @onclick="@(() => takeTask(task, inputEmails))">Take task</button>
-							</div>
-						</div>
+			@foreach (var task in TasksObjectList)
+				{
+							<tr>
+							<td>@task.task</td>
+							
+								<label for="name">Collaborators</label>
+							<div>
+							@if (task.collaborators != null)
+								{
+								foreach (var col in task.collaborators)
+								{
+								var Text = col;
+								bool Checked = false;
+								if (AllTeamsParticipants.Contains(col))
+								{
+									Checked = true;
+								}
+								<td>
+							<input id="@task" type="checkbox" checked=@Checked 
+						   @onchange="eventArgs => {CheckboxClicked(col, eventArgs.Value); }" />
+								@Text<br />
+								</td>
+							}
+							}
+							<td>
+						<button type="button" class="btn btn-success" 
+							@onclick="@(() => takeTask(task.task.ToString(), AllTeamsParticipants.ToArray()))">
+							Take task
+						</button>
 						</td>
+						</div>
 						</tr>
-					}
-				</tbody>
+				}
+							
+					</tbody>
 			</table>
-
+			
 		<h3>Current scores of teams:</h3>
 		<table class="table">
 			<thead>
@@ -192,23 +209,29 @@
 
 
 @code {
-	string NameofCurrentTeam { get; set; }
 	public List<ITaskDynamic> listOfTasksDynamicSolved { get; set; } = new List<ITaskDynamic>();
 	public List<ITaskDynamic> listOfTasksDynamicSubmitted { get; set; } = new List<ITaskDynamic>();
 	public List<ITaskDynamic> listOfCurrentOpenedTasks { get; set; } = new List<ITaskDynamic>();
 	public List<string> listOfCurrentUsedTasks { get; set; } = new List<string>();
-	public string[] AllTeamsCollaborators { get; set; } = new string[6];
+
+	List<string> AllTeamsParticipants { get; set; } = new List<string>();
 	public List<TeamModel> AllTeams { get; set; } = new List<TeamModel>();
 	public List<TeamGrade> TeamGrade { get; set; } = new List<TeamGrade>();
 	string NameofCurrentCompetition;
-
 	public SubmitTaskBody submitTaskBody { get; set; }
 	public PickTaskBody pickTaskBody { get; set; }
-	public IEnumerable<string> taskYouAbleToPick { get; set; } = new List<string>(); //SEND DATA ABOUT IT
+
 	public CompetitionModel currentCompetitionObject = new CompetitionModel();
+	public TeamModel currentTeamObject = new TeamModel();
+	public string[] taskYouAbleToPick;
+
+	public List<ITaskToObject> TasksObjectList { get; set; } = new List<ITaskToObject>();
+
 	private string inputValue { get; set; }
 	private string inputEmails { get; set; }
 	private string email = "";
+	string NameofCurrentTeam = "";
+
 
 	protected override async Task OnInitializedAsync()
 	{
@@ -248,6 +271,8 @@
 		}
 
 		var getTeams = await Http.GetAsync("http://localhost:2050/team/readAll");
+
+
 		string content = await getTeams.Content.ReadAsStringAsync();
 		var checkAllTeams = JsonConvert.DeserializeObject<List<TeamModel>>(content);
 
@@ -260,9 +285,17 @@
 				{
 					NameofCurrentCompetition = oneCompetition.Name;
 					currentCompetitionObject = oneCompetition;
+
+					//foreach (var task in currentCompetitionObject.ListOfTasks)
+					//{
+					//	taskYouAbleToPick.Add(new List<string>(task));
+					//}
 				}
 			}
 		}
+
+		taskYouAbleToPick = currentCompetitionObject.ListOfTasks;
+
 
 		if (checkAllTeams is not null)
 		{
@@ -270,7 +303,15 @@
 			{
 				if (oneTeam.Name == NameofCurrentTeam)
 				{
-					AllTeamsCollaborators = oneTeam.ListOfParticipantsEmail;
+					currentTeamObject = oneTeam;
+					AllTeamsParticipants = new List<string>(oneTeam.ListOfParticipantsEmail);
+
+					foreach(var task in taskYouAbleToPick)
+					{
+						TasksObjectList.Add
+						(new ITaskToObject(task, new List<string>(oneTeam.ListOfParticipantsEmail)));
+					}
+
 					listOfTasksDynamicSolved = oneTeam.ListOfTasksDynamicSolved;
 					listOfTasksDynamicSubmitted = oneTeam.ListOfTasksDynamicSumbitted;
 					listOfCurrentOpenedTasks = oneTeam.ListOfTasksDynamicInProgress;
@@ -288,17 +329,19 @@
 						listOfCurrentUsedTasks.Add(new string(task.TaskStatic.name));
 					}
 				}
-
 				TeamGrade.Add(new TeamGrade(oneTeam.Name, oneTeam.EarnedPoints));
 			}
 		}
+		 
+		taskYouAbleToPick.Union(listOfCurrentUsedTasks).Except(taskYouAbleToPick.Intersect(listOfCurrentUsedTasks));
+		//taskYouAbleToPick = currentCompetitionObject.ListOfTasks.Except(listOfCurrentUsedTasks);
 
-		listOfCurrentUsedTasks.Union(currentCompetitionObject.ListOfTasks).Except(listOfCurrentUsedTasks.Intersect(currentCompetitionObject.ListOfTasks));
-		taskYouAbleToPick = currentCompetitionObject.ListOfTasks.Except(listOfCurrentUsedTasks);
 		TeamGrade.Sort((a, b) => b.score.CompareTo(a.score));
+
+		
 	}
 
-	async Task takeTask(string taskName, string collaborators)
+	async Task takeTask(string taskName, string[] collaboratorsEmails)
 	{
 		using (var client = new HttpClient())
 		{
@@ -307,7 +350,7 @@
 			if (accessTokenResult.TryGetToken(out var token)) AccessToken = token.Value;
 			client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", AccessToken);
 
-			pickTaskBody = new PickTaskBody(NameofCurrentTeam, taskName, collaborators, email);
+			pickTaskBody = new PickTaskBody(NameofCurrentTeam, taskName, collaboratorsEmails, email);
 			var response = client.PostAsJsonAsync("http://localhost:2050/teamManager/takeTask/", pickTaskBody);
 		}
 	}
@@ -329,4 +372,24 @@
 	{
 		return Guid.NewGuid().ToString("N");
 	}
+
+	async Task CheckboxClicked(string col, object aChecked)
+	{
+		if ((bool)aChecked)
+		{
+			if (!currentTeamObject.ListOfParticipantsEmail.Contains(col))
+			{
+				currentTeamObject.ListOfParticipantsEmail.Add(col);
+			}
+		}
+		else
+		{
+			if (currentTeamObject.ListOfParticipantsEmail.Contains(col))
+			{
+				currentTeamObject.ListOfParticipantsEmail.Remove(col);
+			}
+		}
+	}
+
+
 }

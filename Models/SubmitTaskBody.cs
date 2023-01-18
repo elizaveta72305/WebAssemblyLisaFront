@@ -2,7 +2,6 @@
 {
 	public class SubmitTaskBody
 	{
-		
 			public string taskName { get; set; }
 			public string solution { get; set; }
 
