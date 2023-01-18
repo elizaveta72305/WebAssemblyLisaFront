@@ -28,9 +28,9 @@ namespace WebAssemblyF.Models
 
     public class ITaskStatic
     {
-        [JsonProperty("description")]
-        [BsonElement("description"), BsonRepresentation(BsonType.String)]
-        public string _id { get; set; }
+		[BsonId, BsonRepresentation(BsonType.ObjectId)]
+
+		public string _id { get; set; }
 
         [BsonId, BsonRepresentation(BsonType.ObjectId)]
         public string? STaskId { get; set; }

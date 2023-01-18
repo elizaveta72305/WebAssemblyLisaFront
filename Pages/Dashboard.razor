@@ -22,91 +22,84 @@
 @inject IAccessTokenProvider TokenProvider;
 @inject IDashboard DashboardService;
 
+
 <h1>Your personal dashboard </h1>
 
 	<AuthorizeView Policy="@Policies.IsParticipant">
+
 		Hello @context.User.Identity.Name! <br/>
-	You are participant of competition in "<span>@NameofCurrentTeam</span>"<br/>
+		You are participant of competition in "<span>@NameofCurrentTeam</span>"<br/>
 
-@if (@listOfTasksDynamicSolved is not null)
+		@if (@listOfTasksDynamicSolved.Any())
 		{
-		<h3>List of solved tasks</h3>
-		<table class="table">
-			<thead>
-				<tr>
-					<th>Solved task</th>
-					<th>Points</th>
-					<th>Start time</th>
-					<th>End time</th>
-					<th>Who worked on the task</th>
-				</tr>
-			</thead>
-			<tbody>
-
-				@foreach (var oneTask in @listOfTasksDynamicSolved)
-				{
+			<h3>List of solved tasks</h3>
+			<table class="table">
+				<thead>
 					<tr>
-						<td><button type="button" class="btn btn-info" >@oneTask.TaskStatic.name</button></td>
- 
-
-						<td>@oneTask.Points</td>
-						<td>@oneTask.StartTime</td>
-						<td>@oneTask.EndTime</td>
-						<td>
-							@foreach (var collaborators in @oneTask.CollaboratorEmails)
-							{
-								<span>@collaborators </span><br />
-							}
-						</td>
+						<th>Solved task</th>
+						<th>Points</th>
+						<th>Start time</th>
+						<th>End time</th>
+						<th>Who worked on the task</th>
 					</tr>
-				}
-			</tbody>
+				</thead>
+				<tbody>
+
+					@foreach (var oneTask in @listOfTasksDynamicSolved)
+					{
+						<tr>
+							<td>@oneTask.TaskStatic.name</td>
+
+							<td>@oneTask.Points</td>
+							<td>@oneTask.StartTime</td>
+							<td>@oneTask.EndTime</td>
+							<td>
+								@foreach (var collaborators in @oneTask.CollaboratorEmails)
+								{
+									<span>@collaborators </span><br />
+								}
+							</td>
+						</tr>
+					}
+				</tbody>
 			</table>
 		}
 
-	@foreach (var SoneTask in @listOfTasksDynamicSubmitted)
-	{
-		@if (@SoneTask.CollaboratorEmails is not null)
+		@if (@listOfTasksDynamicSubmitted.Any())
 		{
-
-		<h3>List of submitted tasks</h3>
-		<table class="table">
-			<thead>
-				<tr>
-					<th>Submitted task</th>
-					<th>Start time</th>
-					<th>End time</th>
-					<th>Who worked on the task</th>
-				</tr>
-			</thead>
-			<tbody>
-
-				@foreach (var oneTaskS in @listOfTasksDynamicSubmitted)
-				{
+			<h3>List of submitted tasks</h3>
+			<table class="table">
+				<thead>
 					<tr>
-							<td>@oneTaskS.TaskStatic.name</td>
-						<td>@oneTaskS.StartTime</td>
-							<td>
-@*								//TIMER
-*@								 </td>
-						<td>
-								@foreach (var collaborators in @oneTaskS.CollaboratorEmails)
-							{
-								<span>@collaborators </span>
-								<br />
-							}
-						</td>
+						<th>Submitted task</th>
+						<th>Start time</th>
+						<th>End time</th>
+						<th>Who worked on the task</th>
 					</tr>
-				}
-			</tbody>
-		</table>
-	}
-	}
+				</thead>
+				<tbody>
+
+					@foreach (var oneTaskS in @listOfTasksDynamicSubmitted)
+					{
+						<tr>
+							<td>@oneTaskS.TaskStatic.name</td>
+							<td>@oneTaskS.StartTime</td>
+							<td>@oneTaskS.EndTime</td>
+							<td>
+								@foreach (var collaborators in @oneTaskS.CollaboratorEmails)
+								{
+									<span>@collaborators </span>
+									<br />
+								}
+							</td>
+						</tr>
+					}
+				</tbody>
+			</table>
+		}
 
 
-	@foreach (var OoneTask in @listOfCurrentOpenedTasks)
-	{
-		@if (@OoneTask.CollaboratorEmails is not null)
+		@if (@listOfCurrentOpenedTasks.Any())
 		{
 
 			<h3>List of current opened tasks</h3>
@@ -120,7 +113,7 @@
 				</thead>
 				<tbody>
 
-					@foreach (var oneTaskO in @listOfTasksDynamicSubmitted)
+					@foreach (var oneTaskO in @listOfCurrentOpenedTasks)
 					{
 						<tr>
 							<td>@oneTaskO.TaskStatic.name</td>
@@ -133,42 +126,89 @@
 									<br />
 								}
 							</td>
+
+							<div class="input-group mb-3">
+								<input type="text" class="form-control" placeholder="Link on GitHub" @bind="@inputValue" @oninput="@(x => { inputValue = (string) x.Value;})" aria-label="Recipient's username" aria-describedby="basic-addon2">
+								<div class="input-group-append">
+									<button type="button" class="btn btn-success" @onclick="@(() => sendTask(oneTaskO.TaskStatic.name, inputValue))">Submit task</button>
+								</div>
+							</div>
+
 						</tr>
 					}
 				</tbody>
 			</table>
 		}
-	}
 
-<h3>Current scores of teams:</h3>
-<table class="table">
-	<thead>
-		<tr>
-			<th scope="col">Team Name</th>
-			<th scope="col">Grade</th>
-		</tr>
-	</thead>
-	<tbody>
-		@foreach (var team in TeamGrade)
-		{
-			<tr>
-				<td scope="row">@team.teamName</td>
-				<td scope="row">@team.score</td>
-			</tr>
-		}
-	</tbody>
-</table>
+
+		
+			<h3>List of tasks you able to pick</h3>
+			<table class="table">
+				<thead>
+					<tr>
+						<th>Name of task</th>
+					</tr>
+			
+				</thead>
+				<tbody>
+					@foreach (var task in taskYouAbleToPick)
+					{
+						<tr>
+						<td>@task</td>
+						<td>
+						<div class="input-group mb-3">
+							<input id=@generateID type="text" class="form-control" placeholder="Emails of collaborators" @bind="@inputEmails" @oninput="@(x => { inputEmails = (string) x.Value;})" aria-label="Recipient's username" aria-describedby="basic-addon2">
+							<div class="input-group-append">
+								<button type="button" class="btn btn-success" @onclick="@(() => takeTask(task, inputEmails))">Take task</button>
+							</div>
+						</div>
+						</td>
+						</tr>
+					}
+				</tbody>
+			</table>
+
+		<h3>Current scores of teams:</h3>
+		<table class="table">
+			<thead>
+				<tr>
+					<th scope="col">Team Name</th>
+					<th scope="col">Grade</th>
+				</tr>
+			</thead>
+			<tbody>
+				@foreach (var team in TeamGrade)
+				{
+					<tr>
+						<td scope="row">@team.teamName</td>
+						<td scope="row">@team.score</td>
+					</tr>
+				}
+			</tbody>
+		</table>
+
 </AuthorizeView>
+
+
 
 @code {
 	string NameofCurrentTeam { get; set; }
 	public List<ITaskDynamic> listOfTasksDynamicSolved { get; set; } = new List<ITaskDynamic>();
 	public List<ITaskDynamic> listOfTasksDynamicSubmitted { get; set; } = new List<ITaskDynamic>();
 	public List<ITaskDynamic> listOfCurrentOpenedTasks { get; set; } = new List<ITaskDynamic>();
-
-
+	public List<string> listOfCurrentUsedTasks { get; set; } = new List<string>();
+	public string[] AllTeamsCollaborators { get; set; } = new string[6];
 	public List<TeamModel> AllTeams { get; set; } = new List<TeamModel>();
 	public List<TeamGrade> TeamGrade { get; set; } = new List<TeamGrade>();
+	string NameofCurrentCompetition;
+
+	public SubmitTaskBody submitTaskBody { get; set; }
+	public PickTaskBody pickTaskBody { get; set; }
+	public IEnumerable<string> taskYouAbleToPick { get; set; } = new List<string>(); //SEND DATA ABOUT IT
+	public CompetitionModel currentCompetitionObject = new CompetitionModel();
+	private string inputValue { get; set; }
+	private string inputEmails { get; set; }
+	private string email = "";
 
 	protected override async Task OnInitializedAsync()
 	{
@@ -191,6 +231,7 @@
 			var handler = new JwtSecurityTokenHandler();
 			var jwtSecurityToken = handler.ReadJwtToken(AccessToken);
 			mail = jwtSecurityToken.Claims.First(c => c.Type == "mail").Value;
+			email = mail;
 		}
 		Http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", AccessToken);
 
@@ -210,7 +251,18 @@
 		string content = await getTeams.Content.ReadAsStringAsync();
 		var checkAllTeams = JsonConvert.DeserializeObject<List<TeamModel>>(content);
 
-		//var secontallUsers = await Http.GetFromJsonAsync<List<TeamModel>>("http://localhost:2050/team/readAll");
+		var allCompetition = await Http.GetFromJsonAsync<List<CompetitionModel>>("/api/Competition");
+		if (allCompetition is not null)
+		{
+			foreach (var oneCompetition in allCompetition)
+			{
+				if (oneCompetition.Status == "Running")
+				{
+					NameofCurrentCompetition = oneCompetition.Name;
+					currentCompetitionObject = oneCompetition;
+				}
+			}
+		}
 
 		if (checkAllTeams is not null)
 		{
@@ -218,16 +270,63 @@
 			{
 				if (oneTeam.Name == NameofCurrentTeam)
 				{
+					AllTeamsCollaborators = oneTeam.ListOfParticipantsEmail;
 					listOfTasksDynamicSolved = oneTeam.ListOfTasksDynamicSolved;
 					listOfTasksDynamicSubmitted = oneTeam.ListOfTasksDynamicSumbitted;
 					listOfCurrentOpenedTasks = oneTeam.ListOfTasksDynamicInProgress;
+
+					foreach (var task in oneTeam.ListOfTasksDynamicSolved)
+					{
+						listOfCurrentUsedTasks.Add(new string(task.TaskStatic.name));
+					}
+					foreach (var task in oneTeam.ListOfTasksDynamicSumbitted)
+					{
+						listOfCurrentUsedTasks.Add(new string(task.TaskStatic.name));
+					}
+					foreach (var task in oneTeam.ListOfTasksDynamicInProgress)
+					{
+						listOfCurrentUsedTasks.Add(new string(task.TaskStatic.name));
+					}
 				}
 
 				TeamGrade.Add(new TeamGrade(oneTeam.Name, oneTeam.EarnedPoints));
 			}
 		}
 
-
+		listOfCurrentUsedTasks.Union(currentCompetitionObject.ListOfTasks).Except(listOfCurrentUsedTasks.Intersect(currentCompetitionObject.ListOfTasks));
+		taskYouAbleToPick = currentCompetitionObject.ListOfTasks.Except(listOfCurrentUsedTasks);
 		TeamGrade.Sort((a, b) => b.score.CompareTo(a.score));
+	}
+
+	async Task takeTask(string taskName, string collaborators)
+	{
+		using (var client = new HttpClient())
+		{
+			var accessTokenResult = await TokenProvider.RequestAccessToken();
+			var AccessToken = string.Empty;
+			if (accessTokenResult.TryGetToken(out var token)) AccessToken = token.Value;
+			client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", AccessToken);
+
+			pickTaskBody = new PickTaskBody(NameofCurrentTeam, taskName, collaborators, email);
+			var response = client.PostAsJsonAsync("http://localhost:2050/teamManager/takeTask/", pickTaskBody);
 		}
+	}
+
+	async Task sendTask(string taskName, string solution)
+	{
+		using (var client = new HttpClient())
+		{
+			var accessTokenResult = await TokenProvider.RequestAccessToken();
+			var AccessToken = string.Empty;
+			if (accessTokenResult.TryGetToken(out var token)) AccessToken = token.Value;
+
+			client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", AccessToken);
+			submitTaskBody = new SubmitTaskBody(taskName, solution, email);
+			var response = client.PostAsJsonAsync("http://localhost:2050/teamManager/submitTask/", submitTaskBody);
+		}
+	}
+	public string generateID()
+	{
+		return Guid.NewGuid().ToString("N");
+	}
 }
