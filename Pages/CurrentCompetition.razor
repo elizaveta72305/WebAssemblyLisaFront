@@ -41,11 +41,28 @@
 </table>
 
 
+<table class="table">
+	<thead>
+		<tr>
+			<th>Social Media code</th>
+			<th>Current Competition admin</th>
+		</tr>
+	</thead>
+	<tbody>
+
+		<tr>
+			<td>@AllCompetitionInfo.SMcode min</td>
+			<td>@AllCompetitionInfo.CompetitionAdmin</td>
+		</tr>
+
+	</tbody>
+</table>
+
+
 
 @code {
-	string NameofCurrentCompetition { get; set; }
-	public CompetitionModel AllCompetitionInfo { get; set; }
-
+	string NameofCurrentCompetition { get; set; } = "";
+	public CompetitionModel AllCompetitionInfo { get; set; } = new CompetitionModel();
 
 	protected override async Task OnInitializedAsync()
 	{
@@ -78,6 +95,14 @@
 					AllCompetitionInfo = oneCompetition;
 				}
 
+			}
+		}
+		var allTeams = await Http.GetFromJsonAsync<List<TeamModel>>("http://localhost:2050/team/readAll");
+		if(allTeams is not null)
+		{
+			foreach (var team in allTeams)
+			{
+				
 			}
 		}
 
