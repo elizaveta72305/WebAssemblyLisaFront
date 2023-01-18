@@ -133,7 +133,6 @@
 									<button type="button" class="btn btn-success" @onclick="@(() => sendTask(oneTaskO.TaskStatic.name, inputValue))">Submit task</button>
 								</div>
 							</div>
-
 						</tr>
 					}
 				</tbody>
@@ -285,7 +284,7 @@
 				{
 					NameofCurrentCompetition = oneCompetition.Name;
 					currentCompetitionObject = oneCompetition;
-
+					taskYouAbleToPick = oneCompetition.ListOfTasks;
 					//foreach (var task in currentCompetitionObject.ListOfTasks)
 					//{
 					//	taskYouAbleToPick.Add(new List<string>(task));
@@ -294,7 +293,6 @@
 			}
 		}
 
-		taskYouAbleToPick = currentCompetitionObject.ListOfTasks;
 
 
 		if (checkAllTeams is not null)
