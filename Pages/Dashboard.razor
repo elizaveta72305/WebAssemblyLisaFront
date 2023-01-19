@@ -287,7 +287,7 @@
 					taskYouAbleToPick = oneCompetition.ListOfTasks;
 					//foreach (var task in currentCompetitionObject.ListOfTasks)
 					//{
-					//	taskYouAbleToPick.Add(new List<string>(task));
+					//taskYouAbleToPick.Add(new List<string>(task));
 					//}
 				}
 			}
@@ -335,8 +335,6 @@
 		//taskYouAbleToPick = currentCompetitionObject.ListOfTasks.Except(listOfCurrentUsedTasks);
 
 		TeamGrade.Sort((a, b) => b.score.CompareTo(a.score));
-
-		
 	}
 
 	async Task takeTask(string taskName, string[] collaboratorsEmails)
