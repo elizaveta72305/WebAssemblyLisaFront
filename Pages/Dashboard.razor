@@ -109,6 +109,8 @@
 						<th>Submitted task</th>
 						<th>Start time</th>
 						<th>Remaining time</th>
+						<th>Who work on task</th>
+
 					</tr>
 				</thead>
 				<tbody>
@@ -118,9 +120,9 @@
 						<tr>
 							<td>@oneTaskO.TaskStatic.name</td>
 							<td>@oneTaskO.StartTime</td>
-							<td> @oneTaskO.StartTime @oneTaskO.EndTime</td>
+							<td>@oneTaskO.TaskStatic.durationLimit min</td>
 							<td>
-								@foreach (var collaborators in @oneTaskO.CollaboratorEmails)
+							@foreach (var collaborators in AllTeamsParticipants)
 								{
 									<span>@collaborators </span>
 									<br />
@@ -128,7 +130,7 @@
 							</td>
 
 							<div class="input-group mb-3">
-								<input type="text" class="form-control" placeholder="Link on GitHub" @bind="@inputValue" @oninput="@(x => { inputValue = (string) x.Value;})" aria-label="Recipient's username" aria-describedby="basic-addon2">
+							<input id="@oneTaskO.TaskStatic.STaskId" type="text" class="form-control" placeholder="Link on GitHub" @bind="@inputValue" @oninput="@(x => { inputValue = (string) x.Value;})" aria-label="Recipient's username" aria-describedby="basic-addon2">
 								<div class="input-group-append">
 									<button type="button" class="btn btn-success" @onclick="@(() => sendTask(oneTaskO.TaskStatic.name, inputValue))">Submit task</button>
 								</div>

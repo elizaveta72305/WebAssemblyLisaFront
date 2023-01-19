@@ -35,7 +35,6 @@
 			<td>@AllCompetitionInfo.SMcode min</td>
 			<td>@AllCompetitionInfo.CompetitionAdmin</td>
 		</tr>
-
 	</tbody>
 </table>
 
@@ -53,10 +52,16 @@
 			<th scope="row">@currentTeam.Name</th>
 			<td>@currentTeam.EarnedPoints</td>
 
-			@foreach (var user in currentTeam.ListOfParticipantsEmail)
+			@*@foreach (var user in @currentTeam.ListOfParticipantsEmail)
 			{
 				<td>@user</td>
-			}
+			}*@
+			<td>
+			@foreach (var email in EmailToObject)
+					{
+				@email.email <br />
+					}
+			</td>
 		</tr>
 	</tbody>
 </table>
