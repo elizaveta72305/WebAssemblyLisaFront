@@ -61,10 +61,12 @@
 	</tbody>
 </table>
 
+
 <table class="table">
 	<thead>
 		<tr>
-			<th>Social Media code</th>
+			<th></th>
+			<th>Pick new team participants</th>
 		</tr>
 	</thead>
 	<tbody>
@@ -72,11 +74,10 @@
 			<td>
 
 				<div class="input-group mb-3">
-					<input type="text" class="form-control" placeholder="Team name" @bind="@putTeamName" @oninput="@(x => { putTeamName = (string) x.Value;})" aria-label="Recipient's username" aria-describedby="basic-addon2">
+					<input type="text" class="form-control" placeholder="Put here name of new team" @bind="@putTeamName" @oninput="@(x => { putTeamName = (string) x.Value;})" aria-label="Recipient's username" aria-describedby="basic-addon2">
 					<div class="input-group-append">
 
 						<button type="button" class="btn btn-success" @onclick="@(() => createTeam(putTeamName, AllCompetitionInfo.Participants.ToArray()))">Create team</button>
-					
 					</div>
 				</div>
 			</td>
@@ -87,7 +88,6 @@
 					{
 						foreach (var email in EmailToObject)
 						{
-							
 								var Text = email.email;
 								bool Checked = false;
 							if (AllCompetitionInfo.Participants.Contains(email.email))
@@ -97,33 +97,24 @@
 								<input type="checkbox" checked=@Checked
 						   @onchange="eventArgs => { CheckboxClicked(email.email, eventArgs.Value); }" />
 								@Text <br />
-							
 						}
 					}
 				</div>
 			</td>
-			<td>
-				<button type="button" class="btn btn-success" @onclick="@(() => createTeam(putTeamName, AllCompetitionInfo.Participants.ToArray()))">Create team</button>
-			</td>
 		</tr>
-
 	</tbody>
 </table>
 
 
 
-
 @code {
-	string NameofCurrentCompetition;
+	string NameofCurrentCompetition = "";
 	public CompetitionModel AllCompetitionInfo { get; set; } = new CompetitionModel();
 	public TeamModel currentTeam { get; set; } = new TeamModel();
 	public CreateTeamBody createTeamBody { get; set; }
 	public string putTeamName = "";
 	public List<EmailToObject> EmailToObject { get; set; } = new List<EmailToObject>();
-
-
 	public List<string> allUsersNames = new List<string>();
-
 	public List<UserModel> allUsers = new List<UserModel>();
 
 
@@ -175,12 +166,23 @@
 				}
 			}
 		}
+		allUsers = await Http.GetFromJsonAsync<List<UserModel>>("/api/User");
 
-		foreach (var email in allUsersNames)
+
+		foreach (var user in allUsers)
 		{
-			EmailToObject.Add
-			(new EmailToObject(email, new List<string>(AllCompetitionInfo.Participants)));
+			
+				EmailToObject.Add
+			(new EmailToObject(user.email, new List<string>(AllCompetitionInfo.Participants)));
+			
 		}
+
+		//foreach (var user in allUsersNames)
+		//{
+		//	foreach (var email in user.em)
+		//		EmailToObject.Add
+		//		(new EmailToObject(email, new List<string>(AllCompetitionInfo.Participants)));
+		//}
 
 
 		//allUsers = await Http.GetFromJsonAsync<List<UserModel>>("/api/User");
