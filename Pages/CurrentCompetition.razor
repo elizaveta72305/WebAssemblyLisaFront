@@ -77,7 +77,7 @@
 					<input type="text" class="form-control" placeholder="Put here name of new team" @bind="@putTeamName" @oninput="@(x => { putTeamName = (string) x.Value;})" aria-label="Recipient's username" aria-describedby="basic-addon2">
 					<div class="input-group-append">
 
-						<button type="button" class="btn btn-success" @onclick="@(() => createTeam(putTeamName, AllCompetitionInfo.Participants.ToArray()))">Create team</button>
+						<button type="button" class="btn btn-success" @onclick="@(() => createTeam(putTeamName, emailsUser.ToArray()))">Create team</button>
 					</div>
 				</div>
 			</td>
@@ -90,7 +90,7 @@
 						{
 								var Text = email.email;
 								bool Checked = false;
-							if (AllCompetitionInfo.Participants.Contains(email.email))
+							if (emailsUser.Contains(email.email))
 								{
 									Checked = true;
 								}
@@ -116,6 +116,7 @@
 	public List<EmailToObject> EmailToObject { get; set; } = new List<EmailToObject>();
 	public List<string> allUsersNames = new List<string>();
 	public List<UserModel> allUsers = new List<UserModel>();
+	public List<string> emailsUser = new List<string>();
 
 
 	protected override async Task OnInitializedAsync()
@@ -168,13 +169,11 @@
 		}
 		allUsers = await Http.GetFromJsonAsync<List<UserModel>>("/api/User");
 
-
 		foreach (var user in allUsers)
 		{
-			
-				EmailToObject.Add
+			EmailToObject.Add
 			(new EmailToObject(user.email, new List<string>(AllCompetitionInfo.Participants)));
-			
+			emailsUser.Add(new string(user.email));
 		}
 
 		//foreach (var user in allUsersNames)
@@ -216,16 +215,16 @@
 		
 			if ((bool)aChecked)
 			{
-			if (!AllCompetitionInfo.Participants.Contains(col))
+			if (!emailsUser.Contains(col))
 				{
-				AllCompetitionInfo.Participants.Add(col);
+				emailsUser.Add(col);
 				}
 			}
 			else
 			{
-				if (AllCompetitionInfo.Participants.Contains(col))
+			if (emailsUser.Contains(col))
 				{
-				AllCompetitionInfo.Participants.Remove(col);
+				emailsUser.Remove(col);
 				}
 			}
 	}
