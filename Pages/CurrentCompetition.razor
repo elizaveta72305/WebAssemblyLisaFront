@@ -21,7 +21,7 @@
 @inject IAccessTokenProvider TokenProvider;
 @inject IDashboard DashboardService;
 
-<h3>Today is @NameofCurrentCompetition competition</h3>
+<h1>Today is @NameofCurrentCompetition competition</h1>
 
 <table class="table">
 	<thead>
@@ -31,12 +31,33 @@
 		</tr>
 	</thead>
 	<tbody>
-		
-			<tr>
+		<tr>
 			<td>@AllCompetitionInfo.SMcode min</td>
 			<td>@AllCompetitionInfo.CompetitionAdmin</td>
-			</tr>
-		
+		</tr>
+
+	</tbody>
+</table>
+
+<h3>Team table</h3>
+<table class="table">
+	<thead class="thead-dark">
+		<tr>
+			<th scope="col">Name of team</th>
+			<th scope="col">Points</th>
+			<th scope="col">Participants</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+			<th scope="row">@currentTeam.Name</th>
+			<td>@currentTeam.EarnedPoints</td>
+
+			@foreach (var user in currentTeam.ListOfParticipantsEmail)
+			{
+				<td>@user</td>
+			}
+		</tr>
 	</tbody>
 </table>
 
@@ -44,25 +65,59 @@
 <table class="table">
 	<thead>
 		<tr>
-			<th>Social Media code</th>
-			<th>Current Competition admin</th>
+			<th></th>
+			<th>Pick new team participants</th>
 		</tr>
 	</thead>
 	<tbody>
-
 		<tr>
-			<td>@AllCompetitionInfo.SMcode min</td>
-			<td>@AllCompetitionInfo.CompetitionAdmin</td>
-		</tr>
+			<td>
 
+				<div class="input-group mb-3">
+					<input type="text" class="form-control" placeholder="Put here name of new team" @bind="@putTeamName" @oninput="@(x => { putTeamName = (string) x.Value;})" aria-label="Recipient's username" aria-describedby="basic-addon2">
+					<div class="input-group-append">
+
+						<button type="button" class="btn btn-success" @onclick="@(() => createTeam(putTeamName, emailsUser.ToArray()))">Create team</button>
+					</div>
+				</div>
+			</td>
+			<td>
+
+				<div>
+					@if (EmailToObject != null)
+					{
+						foreach (var email in EmailToObject)
+						{
+								var Text = email.email;
+								bool Checked = false;
+							if (emailsUser.Contains(email.email))
+								{
+									Checked = true;
+								}
+								<input type="checkbox" checked=@Checked
+						   @onchange="eventArgs => { CheckboxClicked(email.email, eventArgs.Value); }" />
+								@Text <br />
+						}
+					}
+				</div>
+			</td>
+		</tr>
 	</tbody>
 </table>
 
 
 
 @code {
-	string NameofCurrentCompetition { get; set; } = "";
+	string NameofCurrentCompetition = "";
 	public CompetitionModel AllCompetitionInfo { get; set; } = new CompetitionModel();
+	public TeamModel currentTeam { get; set; } = new TeamModel();
+	public CreateTeamBody createTeamBody { get; set; }
+	public string putTeamName = "";
+	public List<EmailToObject> EmailToObject { get; set; } = new List<EmailToObject>();
+	public List<string> allUsersNames = new List<string>();
+	public List<UserModel> allUsers = new List<UserModel>();
+	public List<string> emailsUser = new List<string>();
+
 
 	protected override async Task OnInitializedAsync()
 	{
@@ -84,30 +139,97 @@
 		}
 		Http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", AccessToken);
 
-		var allCompetition = await Http.GetFromJsonAsync<List<CompetitionModel>>("/api/Competition");
-		if(allCompetition  is not null)
+		var allTeams = await Http.GetFromJsonAsync<List<TeamModel>>("http://localhost:2050/team/readAll");
+		if (allTeams is not null)
 		{
-			foreach(var oneCompetition in allCompetition)
+			foreach (var oneTeam in allTeams)
 			{
-				if(oneCompetition.Status == "Running")
+				foreach (var oneEmail in oneTeam.ListOfParticipantsEmail)
+				{
+					if (oneEmail == mail)
+					{
+						currentTeam = oneTeam;
+					}
+				}
+			}
+		}
+
+		var allCompetition = await Http.GetFromJsonAsync<List<CompetitionModel>>("/api/Competition");
+		if (allCompetition is not null)
+		{
+			foreach (var oneCompetition in allCompetition)
+			{
+				if (oneCompetition.Status == "Running")
 				{
 					NameofCurrentCompetition = oneCompetition.Name;
 					AllCompetitionInfo = oneCompetition;
+					allUsersNames = oneCompetition.Participants;
 				}
-
 			}
 		}
-		var allTeams = await Http.GetFromJsonAsync<List<TeamModel>>("http://localhost:2050/team/readAll");
-		if(allTeams is not null)
+		allUsers = await Http.GetFromJsonAsync<List<UserModel>>("/api/User");
+
+		foreach (var user in allUsers)
 		{
-			foreach (var team in allTeams)
-			{
-				
-			}
+			EmailToObject.Add
+			(new EmailToObject(user.email, new List<string>(AllCompetitionInfo.Participants)));
+			emailsUser.Add(new string(user.email));
 		}
 
+		//foreach (var user in allUsersNames)
+		//{
+		//	foreach (var email in user.em)
+		//		EmailToObject.Add
+		//		(new EmailToObject(email, new List<string>(AllCompetitionInfo.Participants)));
+		//}
+
+
+		//allUsers = await Http.GetFromJsonAsync<List<UserModel>>("/api/User");
+		//if (allUsers.Any())
+		//{
+		//	foreach(var user in allUsers)
+		//	{
+
+		//		 = user.email;
+		//}
+
+	}
+
+
+	async Task createTeam(string teamName, string[] listOfParticipantsEmail)
+	{
+		using (var client = new HttpClient())
+		{
+			var accessTokenResult = await TokenProvider.RequestAccessToken();
+			var AccessToken = string.Empty;
+			if (accessTokenResult.TryGetToken(out var token)) AccessToken = token.Value;
+
+			client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", AccessToken);
+			createTeamBody = new CreateTeamBody(teamName, listOfParticipantsEmail);
+			var response = client.PostAsJsonAsync("http://localhost:2050/teamManager/createTeam/", createTeamBody);
+		}
+	}
+
+	async Task CheckboxClicked(string col, object aChecked)
+	{
+		
+			if ((bool)aChecked)
+			{
+			if (!emailsUser.Contains(col))
+				{
+				emailsUser.Add(col);
+				}
+			}
+			else
+			{
+			if (emailsUser.Contains(col))
+				{
+				emailsUser.Remove(col);
+				}
+			}
+	}
+
 
 }
 }
-
 

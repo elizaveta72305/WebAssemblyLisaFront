@@ -31,6 +31,6 @@ namespace WebAssemblyF.Models
 		public string[] Teams { get; set; }
 
 		[BsonElement("participants")]
-		public string[] Participants { get; set; }
+		public List<string> Participants { get; set; }
 	}
 }
