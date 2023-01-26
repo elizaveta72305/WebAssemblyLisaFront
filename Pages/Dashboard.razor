@@ -178,12 +178,10 @@
 							@onclick="@(() => takeTask(task.task.name.ToString(), currentTeamObject.ListOfParticipantsEmail.ToArray()))">
 							Take task
 						</button>
-
 						</td>
 						</div>
 						</tr>
-				}
-							
+						}
 					</tbody>
 			</table>
 			
@@ -323,37 +321,6 @@
 				TeamGrade.Add(new TeamGrade(oneTeam.Name, oneTeam.EarnedPoints));
 			}
 		}
-
-		allTasks = await Http.GetFromJsonAsync<List<ITaskStatic>>("/api/Task");
-		foreach (var task in allTasks.ToList())
-		{
-			foreach (var used in listOfCurrentUsedTasks.ToList())
-			{
-				if (task.name == used.task.TaskStatic.name)
-				{
-					allTasks.Remove(task);
-				}
-			}
-		}
-
-		foreach (var task in allTasks.ToList())
-		{
-			TasksObjectList.Add
-			(new ITaskToObject(task, new List<string>(currentTeamObject.ListOfParticipantsEmail)));
-		}
-
-		//foreach (var oneTeam in checkAllTeams)
-		//{
-		//	if (oneTeam.Name == NameofCurrentTeam)
-		//	{
-		//		foreach (var task in allTasks)
-		//		{
-		//		TasksObjectList.Add
-		//		(new ITaskToObject(task, new List<string>(oneTeam.ListOfParticipantsEmail)));
-		//		}
-		//	}
-		//}
-
 	}
 
 	async Task takeTask(string taskName, string[] collaboratorsEmails)
