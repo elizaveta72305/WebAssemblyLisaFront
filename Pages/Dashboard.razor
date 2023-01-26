@@ -26,11 +26,12 @@
 <h1>Your personal dashboard </h1>
 
 	<AuthorizeView Policy="@Policies.IsParticipant">
-
-		Hello @context.User.Identity.Name! <br/>
-		You are participant of competition in "<span>@NameofCurrentTeam</span>"<br/>
-
-		@if (@listOfTasksDynamicSolved.Any())
+		
+		Hello @context.User.Identity.Name!
+	<br/>
+	You are participant of competition in "<span>@NameofCurrentTeam</span>" < br />
+		
+	@if (@listOfTasksDynamicSolved.Any())
 		{
 			<h3>List of solved tasks</h3>
 			<table class="table">
@@ -141,52 +142,55 @@
 			</table>
 		}
 
-			<h3>List of tasks you able to pick</h3>
-			<table class="table">
-				<thead>
-					<tr>
-						<th>Name of task</th>
-					</tr>
-				</thead>
-				<tbody>
-			@foreach (var task in TasksObjectList)
+	@if (@TasksObjectList.Any())
+	{
+		<h3>List of tasks you able to pick</h3>
+		<table class="table">
+			<thead>
+				<tr>
+					<th>Name of task</th>
+				</tr>
+			</thead>
+			<tbody>
+				@foreach (var task in TasksObjectList)
 				{
-							<tr>
-							<td>@task.task.name</td>
-							
-								<label for="name">Collaborators</label>
-							<div>
+					<tr>
+						<td>@task.task.name</td>
+
+						<label for="name">Collaborators</label>
+						<div>
 							@if (task.collaborators != null)
-								{
+							{
 								foreach (var col in task.collaborators)
 								{
-								var Text = col;
-								bool Checked = false;
-								if (AllTeamsParticipants.Contains(col))
-								{
-									Checked = true;
-								}
-								<td>
-							<input id="@task.task.STaskId" type="checkbox" checked=@Checked 
+									var Text = col;
+									bool Checked = false;
+									if (AllTeamsParticipants.Contains(col))
+									{
+										Checked = true;
+									}
+									<td>
+										<input id="@task.task.STaskId" type="checkbox" checked=@Checked 
 						   @onchange="eventArgs => {CheckboxClicked(col, eventArgs.Value); }" />
-								@Text<br />
-								</td>
-							}
+										@Text<br />
+									</td>
+								}
 							}
 							<td>
-						<button type="button" class="btn btn-success" 
+								<button type="button" class="btn btn-success" 
 							@onclick="@(() => takeTask(task.task.name.ToString(), currentTeamObject.ListOfParticipantsEmail.ToArray()))">
-							Take task
-						</button>
+									Take task
+								</button>
 
-						</td>
+							</td>
 						</div>
-						</tr>
+					</tr>
 				}
-							
-					</tbody>
-			</table>
-			
+
+			</tbody>
+		</table>
+	}
+
 		<h3>Current scores of teams:</h3>
 		<table class="table">
 			<thead>
@@ -341,19 +345,6 @@
 			TasksObjectList.Add
 			(new ITaskToObject(task, new List<string>(currentTeamObject.ListOfParticipantsEmail)));
 		}
-
-		//foreach (var oneTeam in checkAllTeams)
-		//{
-		//	if (oneTeam.Name == NameofCurrentTeam)
-		//	{
-		//		foreach (var task in allTasks)
-		//		{
-		//		TasksObjectList.Add
-		//		(new ITaskToObject(task, new List<string>(oneTeam.ListOfParticipantsEmail)));
-		//		}
-		//	}
-		//}
-
 	}
 
 	async Task takeTask(string taskName, string[] collaboratorsEmails)
@@ -365,7 +356,7 @@
 			if (accessTokenResult.TryGetToken(out var token)) AccessToken = token.Value;
 			client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", AccessToken);
 
-			pickTaskBody = new PickTaskBody(NameofCurrentTeam, taskName, collaboratorsEmails, email);
+			pickTaskBody = new PickTaskBody(NameofCurrentTeam, taskName, collaboratorsEmails);
 			var response = client.PostAsJsonAsync("http://localhost:2050/teamManager/takeTask/", pickTaskBody);
 		}
 	}
@@ -379,7 +370,7 @@
 			if (accessTokenResult.TryGetToken(out var token)) AccessToken = token.Value;
 
 			client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", AccessToken);
-			submitTaskBody = new SubmitTaskBody(taskName, solution, email);
+			submitTaskBody = new SubmitTaskBody(taskName, solution);
 			var response = client.PostAsJsonAsync("http://localhost:2050/teamManager/submitTask/", submitTaskBody);
 		}
 	}
