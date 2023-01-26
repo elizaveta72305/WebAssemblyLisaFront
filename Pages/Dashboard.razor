@@ -122,7 +122,7 @@
 							<td>@oneTaskO.StartTime</td>
 							<td>@oneTaskO.TaskStatic.durationLimit min</td>
 							<td>
-							@foreach (var collaborators in AllTeamsParticipants)
+							@foreach (var collaborators in oneTaskO.CollaboratorEmails)
 								{
 									<span>@collaborators </span>
 									<br />
@@ -152,7 +152,7 @@
 			@foreach (var task in TasksObjectList)
 				{
 							<tr>
-							<td>@task.task</td>
+							<td>@task.task.name</td>
 							
 								<label for="name">Collaborators</label>
 							<div>
@@ -167,7 +167,7 @@
 									Checked = true;
 								}
 								<td>
-							<input id="@task" type="checkbox" checked=@Checked 
+							<input id="@task.task.STaskId" type="checkbox" checked=@Checked 
 						   @onchange="eventArgs => {CheckboxClicked(col, eventArgs.Value); }" />
 								@Text<br />
 								</td>
@@ -175,9 +175,10 @@
 							}
 							<td>
 						<button type="button" class="btn btn-success" 
-							@onclick="@(() => takeTask(task.task.ToString(), AllTeamsParticipants.ToArray()))">
+							@onclick="@(() => takeTask(task.task.name.ToString(), currentTeamObject.ListOfParticipantsEmail.ToArray()))">
 							Take task
 						</button>
+
 						</td>
 						</div>
 						</tr>
@@ -213,7 +214,8 @@
 	public List<ITaskDynamic> listOfTasksDynamicSolved { get; set; } = new List<ITaskDynamic>();
 	public List<ITaskDynamic> listOfTasksDynamicSubmitted { get; set; } = new List<ITaskDynamic>();
 	public List<ITaskDynamic> listOfCurrentOpenedTasks { get; set; } = new List<ITaskDynamic>();
-	public List<string> listOfCurrentUsedTasks { get; set; } = new List<string>();
+	public List<ITaskDynamicAdd> listOfCurrentUsedTasks { get; set; } = new List<ITaskDynamicAdd>();
+	public List<ITaskStatic> allTasks { get; set; } = new List<ITaskStatic>();
 
 	List<string> AllTeamsParticipants { get; set; } = new List<string>();
 	public List<TeamModel> AllTeams { get; set; } = new List<TeamModel>();
@@ -273,7 +275,6 @@
 
 		var getTeams = await Http.GetAsync("http://localhost:2050/team/readAll");
 
-
 		string content = await getTeams.Content.ReadAsStringAsync();
 		var checkAllTeams = JsonConvert.DeserializeObject<List<TeamModel>>(content);
 
@@ -287,14 +288,10 @@
 					NameofCurrentCompetition = oneCompetition.Name;
 					currentCompetitionObject = oneCompetition;
 					taskYouAbleToPick = oneCompetition.ListOfTasks;
-					//foreach (var task in currentCompetitionObject.ListOfTasks)
-					//{
-					//taskYouAbleToPick.Add(new List<string>(task));
-					//}
 				}
 			}
 		}
-
+		TeamGrade.Sort((a, b) => b.score.CompareTo(a.score));
 
 
 		if (checkAllTeams is not null)
@@ -303,40 +300,60 @@
 			{
 				if (oneTeam.Name == NameofCurrentTeam)
 				{
+
 					currentTeamObject = oneTeam;
 					AllTeamsParticipants = new List<string>(oneTeam.ListOfParticipantsEmail);
-
-					foreach(var task in taskYouAbleToPick)
-					{
-						TasksObjectList.Add
-						(new ITaskToObject(task, new List<string>(oneTeam.ListOfParticipantsEmail)));
-					}
-
 					listOfTasksDynamicSolved = oneTeam.ListOfTasksDynamicSolved;
 					listOfTasksDynamicSubmitted = oneTeam.ListOfTasksDynamicSumbitted;
 					listOfCurrentOpenedTasks = oneTeam.ListOfTasksDynamicInProgress;
 
 					foreach (var task in oneTeam.ListOfTasksDynamicSolved)
 					{
-						listOfCurrentUsedTasks.Add(new string(task.TaskStatic.name));
+						listOfCurrentUsedTasks.Add(new ITaskDynamicAdd(task));
 					}
 					foreach (var task in oneTeam.ListOfTasksDynamicSumbitted)
 					{
-						listOfCurrentUsedTasks.Add(new string(task.TaskStatic.name));
+						listOfCurrentUsedTasks.Add(new ITaskDynamicAdd(task));
 					}
 					foreach (var task in oneTeam.ListOfTasksDynamicInProgress)
 					{
-						listOfCurrentUsedTasks.Add(new string(task.TaskStatic.name));
+						listOfCurrentUsedTasks.Add(new ITaskDynamicAdd(task));
 					}
 				}
 				TeamGrade.Add(new TeamGrade(oneTeam.Name, oneTeam.EarnedPoints));
 			}
 		}
-		 
-		taskYouAbleToPick.Union(listOfCurrentUsedTasks).Except(taskYouAbleToPick.Intersect(listOfCurrentUsedTasks));
-		//taskYouAbleToPick = currentCompetitionObject.ListOfTasks.Except(listOfCurrentUsedTasks);
 
-		TeamGrade.Sort((a, b) => b.score.CompareTo(a.score));
+		allTasks = await Http.GetFromJsonAsync<List<ITaskStatic>>("/api/Task");
+		foreach (var task in allTasks.ToList())
+		{
+			foreach (var used in listOfCurrentUsedTasks.ToList())
+			{
+				if (task.name == used.task.TaskStatic.name)
+				{
+					allTasks.Remove(task);
+				}
+			}
+		}
+
+		foreach (var task in allTasks.ToList())
+		{
+			TasksObjectList.Add
+			(new ITaskToObject(task, new List<string>(currentTeamObject.ListOfParticipantsEmail)));
+		}
+
+		//foreach (var oneTeam in checkAllTeams)
+		//{
+		//	if (oneTeam.Name == NameofCurrentTeam)
+		//	{
+		//		foreach (var task in allTasks)
+		//		{
+		//		TasksObjectList.Add
+		//		(new ITaskToObject(task, new List<string>(oneTeam.ListOfParticipantsEmail)));
+		//		}
+		//	}
+		//}
+
 	}
 
 	async Task takeTask(string taskName, string[] collaboratorsEmails)
@@ -366,10 +383,6 @@
 			var response = client.PostAsJsonAsync("http://localhost:2050/teamManager/submitTask/", submitTaskBody);
 		}
 	}
-	public string generateID()
-	{
-		return Guid.NewGuid().ToString("N");
-	}
 
 	async Task CheckboxClicked(string col, object aChecked)
 	{
@@ -388,6 +401,4 @@
 			}
 		}
 	}
-
-
 }
