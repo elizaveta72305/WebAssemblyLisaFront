@@ -27,9 +27,10 @@
 
 	<AuthorizeView Policy="@Policies.IsParticipant">
 		
-		Hello @context.User.Identity.Name!
+	<p>	Hello @context.User.Identity.Name!
 	<br/>
-	You are participant of competition in "<span>@NameofCurrentTeam</span>" < br />
+	You are participant of competition in "<span>@NameofCurrentTeam</span>" <br/>
+	</p>
 		
 	@if (@listOfTasksDynamicSolved.Any())
 		{
@@ -100,9 +101,8 @@
 		}
 
 
-		@if (@listOfCurrentOpenedTasks.Any())
+	@if (@sendTaskToObject.Any())
 		{
-
 			<h3>List of current opened tasks</h3>
 			<table class="table">
 				<thead>
@@ -111,32 +111,33 @@
 						<th>Start time</th>
 						<th>Remaining time</th>
 						<th>Who work on task</th>
-
 					</tr>
 				</thead>
 				<tbody>
 
-					@foreach (var oneTaskO in @listOfCurrentOpenedTasks)
+				@foreach (var oneTaskO in sendTaskToObject)
 					{
 						<tr>
-							<td>@oneTaskO.TaskStatic.name</td>
-							<td>@oneTaskO.StartTime</td>
-							<td>@oneTaskO.TaskStatic.durationLimit min</td>
+							<td>@oneTaskO.taskOpen.TaskStatic.name</td>
+							<td>@oneTaskO.taskOpen.StartTime</td>
+							<td>@oneTaskO.taskOpen.TaskStatic.durationLimit min</td>
 							<td>
-							@foreach (var collaborators in oneTaskO.CollaboratorEmails)
+
+							@foreach (var collaborators in oneTaskO.collaborators)
 								{
 									<span>@collaborators </span>
 									<br />
 								}
-							</td>
 
+							</td>
 							<div class="input-group mb-3">
-							<input id="@oneTaskO.TaskStatic.STaskId" type="text" class="form-control" placeholder="Link on GitHub" @bind="@inputValue" @oninput="@(x => { inputValue = (string) x.Value;})" aria-label="Recipient's username" aria-describedby="basic-addon2">
+							<input id="@oneTaskO.taskOpen.TaskStatic.STaskId" index=@oneTaskO.taskOpen.DTaskId type="text" class="form-control" placeholder="Link on GitHub" @bind="@oneTaskO.input" @oninput="@(x => { oneTaskO.input = (string) x.Value;})" aria-label="Recipient's username" aria-describedby="basic-addon2">
 								<div class="input-group-append">
-									<button type="button" class="btn btn-success" @onclick="@(() => sendTask(oneTaskO.TaskStatic.name, inputValue))">Submit task</button>
+								<button type="button" class="btn btn-success" @onclick="@(() => sendTask(oneTaskO.taskOpen.TaskStatic.name, oneTaskO.input.ToString()))">Submit task</button>
 								</div>
 							</div>
 						</tr>
+					<tr>@inputValue</tr>
 					}
 				</tbody>
 			</table>
@@ -233,8 +234,12 @@
 	public string[] taskYouAbleToPick;
 
 	public List<ITaskToObject> TasksObjectList { get; set; } = new List<ITaskToObject>();
+	public List<SendTaskToObject> sendTaskToObject { get; set; } = new List<SendTaskToObject>();
 
 	private string inputValue { get; set; }
+	private List<string> inputList { get; set; } = new List<string>();
+
+
 	private string inputEmails { get; set; }
 	private string email = "";
 	string NameofCurrentTeam = "";
@@ -345,6 +350,12 @@
 			TasksObjectList.Add
 			(new ITaskToObject(task, new List<string>(currentTeamObject.ListOfParticipantsEmail)));
 		}
+
+		foreach (var taskOpen in listOfCurrentOpenedTasks.ToList())
+		{
+			sendTaskToObject.Add
+			(new SendTaskToObject(taskOpen, new List<string>(taskOpen.CollaboratorEmails), ""));
+		}
 	}
 
 	async Task takeTask(string taskName, string[] collaboratorsEmails)
@@ -370,7 +381,7 @@
 			if (accessTokenResult.TryGetToken(out var token)) AccessToken = token.Value;
 
 			client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", AccessToken);
-			submitTaskBody = new SubmitTaskBody(taskName, solution);
+			submitTaskBody = new SubmitTaskBody(NameofCurrentTeam, taskName, solution);
 			var response = client.PostAsJsonAsync("http://localhost:2050/teamManager/submitTask/", submitTaskBody);
 		}
 	}
