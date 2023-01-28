@@ -10,7 +10,6 @@ using WebAssemblyF.Interface;
 using WebAssemblyF.Pages;
 using WebAssemblyF.Services;
 
-
 using BlazorBootstrap;
 using Blazored.Modal;
 using WebAssemblyF.Shared;

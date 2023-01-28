@@ -7,14 +7,14 @@
 
 		public string[] collaboratorsEmails { get; set; }
 
-		public string email { get; set; }
+		//public string email { get; set; }
 
-		public PickTaskBody(string teamName, string taskName, string[] collaboratorsEmails, string email)
+		public PickTaskBody(string teamName, string taskName, string[] collaboratorsEmails)
 		{
 			this.teamName = teamName;
 			this.taskName = taskName;
 			this.collaboratorsEmails = collaboratorsEmails;
-			this.email = email;
+			//this.email = email;
 		}
 
 	}
