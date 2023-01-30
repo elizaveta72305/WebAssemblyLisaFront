@@ -40,7 +40,7 @@ namespace WebAssemblyF.Models
 
         [JsonProperty("category")]
         [BsonElement("category")]
-        public List<string> category { get; set; }
+        public List<string> category { get; set; } = new List<string>();
 
         [JsonProperty("durationLimit")]
         [BsonElement("durationLimit"), BsonRepresentation(BsonType.Int32)]

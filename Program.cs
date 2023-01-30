@@ -22,6 +22,10 @@ builder.Services.AddHttpClient("ServerAPI",
 	  client => client.BaseAddress = new Uri("http://localhost:5093"))
 	.AddHttpMessageHandler<BaseAddressAuthorizationMessageHandler>();
 
+//builder.Services.AddHttpClient("BlazorWasmApp.AnonymousAPI",
+//      client => client.BaseAddress = new Uri("http://localhost:2050"))
+//    .AddHttpMessageHandler<BaseAddressAuthorizationMessageHandler>();
+
 //builder.Services.AddScoped(sp => new HttpClient { }).AddHttpMessageHandler<BaseAddressAuthorizationMessageHandler>();
 builder.Services.AddScoped<IDashboard, DashboardService>();
 builder.Services.AddScoped<ITaskStaticService, TaskStaticService>();
@@ -32,6 +36,8 @@ builder.Services.AddTransient<DashboardService>();
 
 builder.Services.AddScoped(sp => sp.GetRequiredService<IHttpClientFactory>()
   .CreateClient("ServerAPI"));
+//builder.Services.AddScoped(sp => sp.GetRequiredService<IHttpClientFactory>()
+//  .CreateClient("BlazorWasmApp.AnonymousAPI"));
 
 builder.Services.AddAuthorizationCore(options =>
 {
