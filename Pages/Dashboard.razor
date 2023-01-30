@@ -191,7 +191,7 @@
 			</tbody>
 		</table>
 	}
-
+  
 		<h3>Current scores of teams:</h3>
 		<table class="table">
 			<thead>
@@ -333,7 +333,7 @@
 				TeamGrade.Add(new TeamGrade(oneTeam.Name, oneTeam.EarnedPoints));
 			}
 		}
-
+    
 		allTasks = await Http.GetFromJsonAsync<List<ITaskStatic>>("/api/Task");
 		foreach (var task in allTasks.ToList())
 		{
