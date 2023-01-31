@@ -1,0 +1,106 @@
+﻿@using WebAssemblyF.Models;
+@using Microsoft.AspNetCore.Components.WebAssembly.Authentication;
+@using Microsoft.AspNetCore.Authorization;
+@using Microsoft.AspNetCore.Components;
+@using Microsoft.Extensions.Http;
+@using Microsoft.IdentityModel.Tokens;
+@using Microsoft.Net.Http.Headers;
+@using System.Net.Http.Headers;
+@using WebAssemblyF.Pages;
+@using WebAssemblyF.Services;
+@using Newtonsoft.Json;
+@using System.IdentityModel.Tokens.Jwt;
+@using WebAssemblyF.Pages.Authentication;
+@using System.Net.Http;
+@using BlazorBootstrap;
+@using WebAssemblyF.Interface;
+@inject IDashboard DashboardService;
+
+@page "/changeCompetition"
+@page "/changeCompetition/{id}"
+
+@if (id == null)
+{
+    <PageTitle>Create a new Competition</PageTitle>
+    <h3>Create a new Competition</h3>
+}
+
+else
+{
+    <PageTitle>Edit task "@competition.Name"</PageTitle>
+    <h3>Edit task "@competition.Name"</h3>
+}
+
+<EditForm Model="competition" OnSubmit="HandleSubmit">
+    <div>
+        <label for="Name">Name</label>
+        <InputText id="name" @bind-Value="competition.Name" class="form-control"></InputText>
+    </div>
+    <br />
+
+
+    <div>
+        <label for="numberOfParralel">Number of parralel tasks</label>
+        <InputNumber id="numberOfParralel" @bind-Value="competition.NumberOfParallel" class="form-control"></InputNumber>
+    </div>
+
+      <div>
+        <label for="SMcode">Social media code</label>
+        <InputText id="SMcode" @bind-Value="competition.SMcode" class="form-control"></InputText>
+    </div>
+    <br />
+
+     <div>
+        <label for="competitionAdmin">Competition administrator</label>
+        <InputText id="competitionAdmin" @bind-Value="competition.CompetitionAdmin" class="form-control"></InputText>
+    </div>
+    <br />
+
+    <button type="submit" class="btn btn-primary">@btnText</button>
+    <button type="button" class="btn btn-danger" @onclick="DeleteCompetition">Delete Competition</button>
+</EditForm>
+
+
+@code {
+    [Parameter]
+    public string? id { get; set; }
+    string btnText = string.Empty;
+    CompetitionModel competition = new CompetitionModel();
+
+    protected override async Task OnInitializedAsync()
+    {
+        btnText = id == null ? "Save new Competition" : "Update Competition";
+        await DashboardService.GetAllCompetition();
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (id == null)
+        {
+            
+        }
+        else
+        {
+            competition = await DashboardService.GetCompetitionById((string)id);
+        }
+    }
+
+    async Task HandleSubmit()
+    {
+        if (id == null)
+        {
+            await DashboardService.CreateCompetition(competition);
+        }
+        else
+        {
+            await DashboardService.UpdateCompetition(competition);
+        }
+    }
+
+    async Task DeleteCompetition()
+    {
+        await DashboardService.DeleteCompetition(competition.CompetitionId);
+    }
+
+
+}

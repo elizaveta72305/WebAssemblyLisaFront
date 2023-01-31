@@ -118,10 +118,12 @@ else
             await TaskStaticService.UpdateTaskStatic(taskStatic);
         }
     }
+
     async Task DeleteTaskStatic()
     {
         await TaskStaticService.DeleteTaskStatic(taskStatic._id);
     }
+
 
     async Task CheckboxClicked(string cat, object aChecked)
     {

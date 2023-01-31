@@ -9,6 +9,7 @@ using WebAssemblyF.Interface;
 using WebAssemblyF.Models;
 using WebAssemblyF.Pages;
 using WebAssemblyF.Pages.Authentication;
+
 using static System.Net.WebRequestMethods;
 
 
@@ -32,6 +33,7 @@ namespace WebAssemblyF.Services
 		public List<TeamModel> myListOfAllTeams { get; set; } = new List<TeamModel>();
 		public List<TaskModel> Users { get; set; } = new List<TaskModel>();
 		public string Team { get; set; }
+		public List<CompetitionModel> AllCompetitions { get; set; } = new List<CompetitionModel>();
 		public async Task Initialise()
 		{ 
 			//userEmail = await _tokenClass.TokenInitializedAsync();
@@ -41,7 +43,7 @@ namespace WebAssemblyF.Services
 			{
 			var result = await _http.GetFromJsonAsync<List<TaskModel>>("/api/Task");
 				if (result != null)
-                myStaticTask = result; //ПЕРЕИМЕНОВАТЬ В СТАТИЧЕСКИЕ ТАСКИ.
+                myStaticTask = result; 
 					else
 				{
 				Console.WriteLine("Error of getting all taskes");
@@ -69,6 +71,44 @@ namespace WebAssemblyF.Services
 					Team = oneUser.teamName;
 				}
 			}
+		}
+		public async Task GetAllCompetition()
+		{
+			AllCompetitions = await _http.GetFromJsonAsync<List<CompetitionModel>>("api/Competition");
+		}
+
+		public async Task<CompetitionModel> GetCompetitionById(string id)
+		{
+			
+			var competitionbyId = await _http.GetFromJsonAsync<CompetitionModel>($"api/Competition/{id}");
+
+			if (competitionbyId != null)
+				return competitionbyId;
+			throw new Exception("Competition not found!");
+		}
+
+		//public async Task CreateTaskStatic(ITaskStatic taskStatic)
+		//{
+		//	var result = await _http.PostAsJsonAsync($"/taskStatic/create", taskStatic);
+		//	_navigationManager.NavigateTo("taskcatalog");
+		//}
+
+		public async Task CreateCompetition(CompetitionModel competition)
+		{
+			var result = await _http.PostAsJsonAsync($"/api/Competition", competition);
+			_navigationManager.NavigateTo("currentCompetition");
+		}
+
+		public async Task UpdateCompetition(CompetitionModel competition)
+		{
+			var result = await _http.PutAsJsonAsync<CompetitionModel>($"/api/Competition", competition);
+			_navigationManager.NavigateTo("currentCompetition");
+		}
+
+		public async Task DeleteCompetition(string id)
+		{
+			var result = await _http.DeleteAsync($"/api/Competition/{id}");
+			_navigationManager.NavigateTo("currentCompetition");
 		}
 	}
 }
