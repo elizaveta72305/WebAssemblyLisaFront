@@ -1,19 +1,21 @@
 ﻿using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson;
+using Newtonsoft.Json;
 
 namespace WebAssemblyF.Models
 {
 	public class CompetitionModel
 	{
-		[BsonId, BsonRepresentation(BsonType.ObjectId)] //Name, Number of parallel tasks, SM code, List of tasks.
+		[JsonProperty("_id")]
+		[BsonId, BsonRepresentation(BsonType.ObjectId)] 
 
-		public string? CompetitionId { get; set; }
+		public string? _id { get; set; }
 
 		[BsonElement("name"), BsonRepresentation(BsonType.String)]
 		public string Name { get; set; }
 
 		[BsonElement("status"), BsonRepresentation(BsonType.String)]
-		public string Status { get; set; }
+		public string? Status { get; set; }
 
 		[BsonElement("numberOfParallel"), BsonRepresentation(BsonType.Int32)]
 		public int NumberOfParallel { get; set; }
@@ -22,15 +24,15 @@ namespace WebAssemblyF.Models
 		public string SMcode { get; set; }
 
 		[BsonElement("listOfTasks")]
-		public string[] ListOfTasks { get; set; }
+		public string[]? ListOfTasks { get; set; }
 
 		[BsonElement("competitionAdmin"), BsonRepresentation(BsonType.String)]
 		public string CompetitionAdmin { get; set; }
 
 		[BsonElement("teams")]
-		public string[] Teams { get; set; }
+		public string[]? Teams { get; set; }
 
 		[BsonElement("participants")]
-		public List<string> Participants { get; set; }
+		public List<string>? Participants { get; set; }
 	}
 }

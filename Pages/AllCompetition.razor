@@ -1,0 +1,112 @@
+﻿@using WebAssemblyF.Models;
+@using Microsoft.AspNetCore.Components.WebAssembly.Authentication;
+@using Microsoft.AspNetCore.Authorization;
+@using Microsoft.AspNetCore.Components;
+@using Microsoft.Extensions.Http;
+@using Microsoft.IdentityModel.Tokens;
+@using Microsoft.Net.Http.Headers;
+@using System.Net.Http.Headers;
+@using WebAssemblyF.Pages;
+@using WebAssemblyF.Services;
+@using Newtonsoft.Json;
+@using System.IdentityModel.Tokens.Jwt;
+@using WebAssemblyF.Pages.Authentication;
+@using System.Net.Http;
+@using BlazorBootstrap;
+@using WebAssemblyF.Interface;
+@page "/AllCompetition"
+
+@using WebAssemblyF.Services;
+@inject HttpClient Http
+@inject IModalService Modal;
+@inject IAccessTokenProvider TokenProvider;
+@inject IDashboard DashboardService;
+@inject NavigationManager NavigationManager
+
+
+<h3>Edit all competitions</h3>
+@if (DashboardService.AllCompetitions .Any())
+{
+	<table class="table">
+		<thead>
+            <tr>
+                <th>Name</th>
+                <th>Number of parralel tasks</th>
+                <th>SM code</th>
+                <th>Competition admin</th>
+				<th>Teams</th>
+				<th>Participants</th>
+            </tr>
+        </thead>
+        <tbody>
+			@foreach(var competition in DashboardService.AllCompetitions.ToList())
+			{
+				<tr>
+
+                <td>@competition.Name</td>
+                <td>@competition.NumberOfParallel</td>
+                <td>@competition.SMcode</td>
+				<td>@competition.CompetitionAdmin</td>
+
+				<td>
+					@foreach (var team in @competition.Teams.ToArray())
+					{
+						<span>@team</span> 
+						<br />
+					}
+					</td>
+
+					<td>
+					@foreach (var member in @competition.Participants)
+					{
+							<span>@member</span>
+							<br />
+					}
+				</td>
+                <td>
+                    <button class="btn btn-primary" @onclick="(() => ShowCompetition(competition._id))"><i class="oi oi-pencil"></i></button>
+                
+				</td>
+            </tr>
+				
+			}
+		</tbody>
+    </table>
+	 <button class="btn btn-primary" @onclick="CreateNewCompetition">Create Competition</button>
+}
+
+@code {
+
+	protected override async Task OnInitializedAsync()
+	{
+		await CallApi();
+		await DashboardService.GetAllCompetition();
+	}
+
+	async Task CallApi()
+	{
+		var accessTokenResult = await TokenProvider.RequestAccessToken();
+		var AccessToken = string.Empty;
+		string mail = "";
+
+		if (accessTokenResult.TryGetToken(out var token))
+		{
+			AccessToken = token.Value;
+			var handler = new JwtSecurityTokenHandler();
+			var jwtSecurityToken = handler.ReadJwtToken(AccessToken);
+			mail = jwtSecurityToken.Claims.First(c => c.Type == "mail").Value;  
+		}
+		Http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", AccessToken);
+	}
+
+	void ShowCompetition(string id)
+    {
+        NavigationManager.NavigateTo($"changeCompetition/{id}");
+    }
+
+	void CreateNewCompetition()
+    {
+        NavigationManager.NavigateTo("/changeCompetition");
+    }
+
+}
