@@ -14,12 +14,15 @@ namespace WebAssemblyF.Interface
 		public Task UpdateCompetition(CompetitionModel competition);
 
 		public Task DeleteCompetition(string id);
+		public List<string> userEmails { get; set; }
 
-		public List<TaskModel> myStaticTask { get; set; }
+        public List<TaskModel> myStaticTask { get; set; }
 		public List<TeamModel> myListOfAllTeams { get; set; }
 		public List<TaskModel> Users { get; set; }
 		public string Team { get; set; }
 		public List<CompetitionModel> AllCompetitions { get; set; }
+
+
 
 	}
 }

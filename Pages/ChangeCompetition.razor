@@ -55,6 +55,24 @@ else
         <InputText id="competitionAdmin" @bind-Value="competition.CompetitionAdmin" class="form-control"></InputText>
     </div>
     <br />
+    
+    <div>
+        @if (DashboardService.userEmails != null)
+        {
+            foreach (var person in DashboardService.userEmails)
+            {
+                var Text = person;
+                bool Checked = false;
+                if (DashboardService.userEmails.Contains(person))
+                {
+                    Checked = true;
+                }
+                <input type="checkbox" checked=@Checked
+               @onchange="eventArgs => { CheckboxClicked(person, eventArgs.Value); }" />
+                @Text <br />
+            }
+        }
+    </div>
 
     <button type="submit" class="btn btn-primary">@btnText</button>
     <button type="button" class="btn btn-danger" @onclick="DeleteCompetition">Delete Competition</button>
@@ -66,7 +84,6 @@ else
     public string? id { get; set; }
     string btnText = string.Empty;
     CompetitionModel competition = new CompetitionModel();
-
     protected override async Task OnInitializedAsync()
     {
         btnText = id == null ? "Save new Competition" : "Update Competition";
@@ -99,8 +116,25 @@ else
 
     async Task DeleteCompetition()
     {
-        await DashboardService.DeleteCompetition(competition.CompetitionId);
+        await DashboardService.DeleteCompetition(competition._id);
     }
 
+    async Task CheckboxClicked(string col, object aChecked)
+    {
+        if ((bool)aChecked)
+        {
+            if (!competition.Participants.Contains(col))
+            {
+                competition.Participants.Add(col);
+            }
+        }
+        else
+        {
+            if (competition.Participants.Contains(col))
+            {
+                competition.Participants.Remove(col);
+            }
+        }
+    }
 
 }

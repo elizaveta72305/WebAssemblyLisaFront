@@ -39,7 +39,7 @@
             </tr>
         </thead>
         <tbody>
-			@foreach(var competition in DashboardService.AllCompetitions)
+			@foreach(var competition in DashboardService.AllCompetitions.ToList())
 			{
 				<tr>
 
@@ -49,7 +49,7 @@
 				<td>@competition.CompetitionAdmin</td>
 
 				<td>
-					@foreach (var team in @competition.Teams)
+					@foreach (var team in @competition.Teams.ToArray())
 					{
 						<span>@team</span> 
 						<br />
@@ -64,7 +64,7 @@
 					}
 				</td>
                 <td>
-                    <button class="btn btn-primary" @onclick="(() => ShowCompetition(competition.CompetitionId))"><i class="oi oi-pencil"></i></button>
+                    <button class="btn btn-primary" @onclick="(() => ShowCompetition(competition._id))"><i class="oi oi-pencil"></i></button>
                 
 				</td>
             </tr>
